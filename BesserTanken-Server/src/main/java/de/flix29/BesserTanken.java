@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TankApi {
+public class BesserTanken {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TankApi.class, args);
+		SpringApplication.run(BesserTanken.class, args);
 	}
 
 }

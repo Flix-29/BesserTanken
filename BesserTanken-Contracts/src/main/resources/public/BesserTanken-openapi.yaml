@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
-  title: Tank-Api
-  description: Openapi definition for Tank-Api.
+  title: BesserTanken
+  description: Openapi definition for BesserTanken.
   version: 1.0.0
   license:
     name: Apache 2.0

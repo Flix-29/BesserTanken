@@ -1,4 +1,4 @@
-package de.flix29.tankApi;
+package de.flix29.besserTanken;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -3,13 +3,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.flix29</groupId>
-	<artifactId>Tank-Api</artifactId>
-	<name>Tank-Api</name>
+	<artifactId>BesserTanken</artifactId>
+	<name>BesserTanken</name>
 
     <modules>
-		<module>Tank-Api-Contracts</module>
-		<module>Tank-Api-Java-Client</module>
-        <module>Tank-Api-Server</module>
+		<module>BesserTanken-Contracts</module>
+		<module>BesserTanken-Java-Client</module>
+        <module>BesserTanken-Server</module>
 	</modules>
 
     <version>1.0.0-SNAPSHOT</version>
