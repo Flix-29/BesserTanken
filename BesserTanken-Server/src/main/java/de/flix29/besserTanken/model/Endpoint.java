@@ -1,8 +1,10 @@
 package de.flix29.besserTanken.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public enum Endpoint {
 
     BASIC_ENDPOINT("https://api.kraftstoffbilliger.de/v2", "basic"),
@@ -13,10 +15,5 @@ public enum Endpoint {
 
     private final String url;
     private final String endpoint;
-
-    Endpoint(String url, String endpoint) {
-        this.url = url;
-        this.endpoint = endpoint;
-    }
 
 }

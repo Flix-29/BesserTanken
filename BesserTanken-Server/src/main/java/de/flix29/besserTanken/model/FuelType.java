@@ -1,8 +1,10 @@
 package de.flix29.besserTanken.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public enum FuelType {
 
     E5(1, "E5", "Super"),
@@ -14,11 +16,5 @@ public enum FuelType {
     private final int id;
     private final String name;
     private final String umgangssprachlich;
-
-    FuelType(int id, String name, String umgangssprachlich) {
-        this.id = id;
-        this.name = name;
-        this.umgangssprachlich = umgangssprachlich;
-    }
 
 }
