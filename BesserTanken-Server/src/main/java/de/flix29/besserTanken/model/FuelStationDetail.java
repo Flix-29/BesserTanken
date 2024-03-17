@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -17,6 +18,7 @@ public class FuelStationDetail {
     private String name;
     private String address;
     private String city;
+    private LocalDateTime lastchange;
     private String distance;
     private List<Price> prices;
     private List<OpeningTime> opening;
