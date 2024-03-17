@@ -15,6 +15,33 @@ public enum FuelType {
 
     private final int id;
     private final String name;
-    private final String umgangssprachlich;
+    private final String de_umgangssprachlich;
+
+    public static FuelType fromId(int id) throws IllegalArgumentException{
+        for (FuelType fuelType : FuelType.values()) {
+            if (fuelType.getId() == id) {
+                return fuelType;
+            }
+        }
+        throw new IllegalArgumentException("Invalid fuel type id: " + id);
+    }
+
+    public static FuelType fromName(String name) throws IllegalArgumentException{
+        for (FuelType fuelType : FuelType.values()) {
+            if (fuelType.getName().equals(name)) {
+                return fuelType;
+            }
+        }
+        throw new IllegalArgumentException("Invalid fuel type name: " + name);
+    }
+
+    public static FuelType fromDeUmgangssprachlich(String de_umgangssprachlich) throws IllegalArgumentException{
+        for (FuelType fuelType : FuelType.values()) {
+            if (fuelType.getDe_umgangssprachlich().equals(de_umgangssprachlich)) {
+                return fuelType;
+            }
+        }
+        throw new IllegalArgumentException("Invalid fuel type de_umgangssprachlich: " + de_umgangssprachlich);
+    }
 
 }
