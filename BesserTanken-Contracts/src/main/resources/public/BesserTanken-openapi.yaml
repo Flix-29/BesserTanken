@@ -6,7 +6,20 @@ info:
   license:
     name: Apache 2.0
     url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
-servers:
-  - url: 'localhost:7070'
 
 paths:
+  /dummy:
+    get:
+      summary: Dummy endpoint
+      operationId: getDummy
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Hello, World!'
