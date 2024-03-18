@@ -59,7 +59,7 @@ public class KraftstoffbilligerJob {
         } else if(httpMethod == POST) {
             requestBuilder
                     .header("Content-Type", "application/x-www-form-urlencoded")
-                    .POST(HttpRequest.BodyPublishers.ofString(getFormDataAsString(parameter)));
+                    .POST(HttpRequest.BodyPublishers.ofString(createFormDataFromString(parameter)));
         }
 
         return HttpClient.newHttpClient().send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
@@ -123,7 +123,7 @@ public class KraftstoffbilligerJob {
         return gson.fromJson(result, FuelStationDetail.class);
     }
 
-    private static String getFormDataAsString(Map<String, String> formData) {
+    private static String createFormDataFromString(Map<String, String> formData) {
         StringBuilder formBodyBuilder = new StringBuilder();
         formData.forEach((key, value) -> {
             if (!formBodyBuilder.isEmpty()) {
