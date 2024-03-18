@@ -10,7 +10,7 @@ import de.flix29.besserTanken.model.Weekdays;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public class CustomOpeningTimeDeserializer implements JsonDeserializer<List<OpeningTime>> {
+public class CustomOpeningTimeDeserializer extends CustomDeserializerUtils implements JsonDeserializer<List<OpeningTime>> {
     @Override
     public List<OpeningTime> deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         var jsonObject = jsonElement.getAsJsonObject();

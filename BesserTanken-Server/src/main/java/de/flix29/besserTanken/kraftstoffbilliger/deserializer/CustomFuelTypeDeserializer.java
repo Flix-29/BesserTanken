@@ -8,7 +8,7 @@ import de.flix29.besserTanken.model.FuelType;
 
 import java.lang.reflect.Type;
 
-public class CustomFuelTypeDeserializer implements JsonDeserializer<FuelType> {
+public class CustomFuelTypeDeserializer extends CustomDeserializerUtils implements JsonDeserializer<FuelType> {
     @Override
     public FuelType deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         int id = jsonElement.getAsJsonObject().get("id").getAsInt();

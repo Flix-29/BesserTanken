@@ -2,11 +2,10 @@ package de.flix29.besserTanken.kraftstoffbilliger;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import de.flix29.besserTanken.kraftstoffbilliger.deserializer.CustomFuelTypeDeserializer;
-import de.flix29.besserTanken.kraftstoffbilliger.deserializer.CustomOpeningTimeDeserializer;
-import de.flix29.besserTanken.kraftstoffbilliger.deserializer.CustomPriceDeserializer;
+import de.flix29.besserTanken.kraftstoffbilliger.deserializer.*;
+import de.flix29.besserTanken.model.FuelStation;
 import de.flix29.besserTanken.model.FuelStationDetail;
 import de.flix29.besserTanken.model.FuelType;
 import de.flix29.besserTanken.model.requests.Endpoints;
@@ -21,7 +20,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,11 +33,11 @@ import static de.flix29.besserTanken.model.requests.HTTPMethod.POST;
 public class KraftstoffbilligerJob {
 
     private final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>) (json, typeOfT, context) ->
-                    LocalDateTime.parse(json.getAsString(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+            .registerTypeAdapter(LocalDateTime.class, new CustomLocalDateTimeDeserializer())
             .registerTypeAdapter(FuelType.class, new CustomFuelTypeDeserializer())
-            .registerTypeAdapter(PRICE_LIST, new CustomPriceDeserializer())
-            .registerTypeAdapter(OPENING_TIMES_LIST, new CustomOpeningTimeDeserializer())
+            .registerTypeAdapter(FuelStation.class, new CustomFuelStationDeserializer())
+            .registerTypeAdapter(PRICE_LIST_TYPE, new CustomPriceDeserializer())
+            .registerTypeAdapter(OPENING_TIMES_LIST_TYPE, new CustomOpeningTimeDeserializer())
             .setPrettyPrinting()
             .create();
 
@@ -71,13 +69,13 @@ public class KraftstoffbilligerJob {
         var response = sendHttpGETRequestWithResponse(TYPES_ENDPOINT);
         var jsonArray = gson.fromJson(response.body(), JsonObject.class).get("types").getAsJsonArray();
 
-        return gson.fromJson(jsonArray, FUEL_TYPE_LIST);
+        return gson.fromJson(jsonArray, FUEL_TYPE_LIST_TYPE);
     }
 
-    public String getFuelStations(@NotNull FuelType fuelType,
-                                  @NotNull double lat,
-                                  @NotNull double lon,
-                                  String radius) throws IOException, InterruptedException {
+    public List<FuelStation> getFuelStations(@NotNull FuelType fuelType,
+                                             @NotNull double lat,
+                                             @NotNull double lon,
+                                             String radius) throws IOException, InterruptedException {
         var formData = new HashMap<>(Map.of(
                 "type", String.valueOf(fuelType.getId()),
                 "lat", String.valueOf(lat),
@@ -88,15 +86,17 @@ public class KraftstoffbilligerJob {
         }
 
         var response = sendHttpPOSTRequestWithResponse(SEARCH_ENDPOINT, formData);
-        return response.body();
+        var jsonArray = gson.fromJson(response.body(), JsonObject.class).get("results").getAsJsonArray();
+
+        return gson.fromJson(jsonArray, FUEL_STATION_LIST_TYPE);
     }
 
-    public String getFuelStationRoute(@NotNull int lat,
-                                      @NotNull int lon,
-                                      @NotNull int lat2,
-                                      @NotNull int lon2,
-                                      @NotNull int type,
-                                      String map) throws IOException, InterruptedException {
+    public List<FuelStation> getFuelStationRoute(@NotNull int lat,
+                                                 @NotNull int lon,
+                                                 @NotNull int lat2,
+                                                 @NotNull int lon2,
+                                                 @NotNull int type,
+                                                 String map) throws IOException, InterruptedException {
         var formData = new HashMap<>(Map.of(
                 "lat", String.valueOf(lat),
                 "lon", String.valueOf(lon),
@@ -109,7 +109,9 @@ public class KraftstoffbilligerJob {
         }
 
         var response = sendHttpPOSTRequestWithResponse(ROUTING_ENDPOINT, formData);
-        return response.body();
+        JsonArray jsonArray = gson.fromJson(response.body(), JsonObject.class).get("results").getAsJsonArray();
+
+        return gson.fromJson(jsonArray, FUEL_STATION_LIST_TYPE);
     }
 
     public FuelStationDetail getFuelStationDetails(@NotNull String id) throws IOException, InterruptedException {
