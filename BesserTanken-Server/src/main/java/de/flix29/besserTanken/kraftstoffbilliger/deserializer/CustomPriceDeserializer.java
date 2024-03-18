@@ -4,8 +4,8 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
-import de.flix29.besserTanken.model.FuelType;
-import de.flix29.besserTanken.model.Price;
+import de.flix29.besserTanken.kraftstoffbilliger.model.FuelType;
+import de.flix29.besserTanken.kraftstoffbilliger.model.Price;
 
 import java.lang.reflect.Type;
 import java.util.List;

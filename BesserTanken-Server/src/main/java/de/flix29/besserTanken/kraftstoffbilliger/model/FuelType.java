@@ -1,4 +1,4 @@
-package de.flix29.besserTanken.model;
+package de.flix29.besserTanken.kraftstoffbilliger.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

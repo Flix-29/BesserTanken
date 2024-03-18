@@ -1,7 +1,7 @@
 package de.flix29.besserTanken.kraftstoffbilliger.deserializer;
 
 import com.google.gson.*;
-import de.flix29.besserTanken.model.FuelStation;
+import de.flix29.besserTanken.kraftstoffbilliger.model.FuelStation;
 
 import java.lang.reflect.Type;
 

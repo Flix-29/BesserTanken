@@ -1,4 +1,4 @@
-package de.flix29.besserTanken.model;
+package de.flix29.besserTanken.kraftstoffbilliger.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,9 +9,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class OpeningTime {
+public class Price {
 
-    private Weekdays day;
-    private String times;
+    private FuelType type;
+    private double price;
 
 }

@@ -1,10 +1,10 @@
 package de.flix29.besserTanken.kraftstoffbilliger.deserializer;
 
 import com.google.gson.reflect.TypeToken;
-import de.flix29.besserTanken.model.FuelStation;
-import de.flix29.besserTanken.model.FuelType;
-import de.flix29.besserTanken.model.OpeningTime;
-import de.flix29.besserTanken.model.Price;
+import de.flix29.besserTanken.kraftstoffbilliger.model.FuelStation;
+import de.flix29.besserTanken.kraftstoffbilliger.model.FuelType;
+import de.flix29.besserTanken.kraftstoffbilliger.model.OpeningTime;
+import de.flix29.besserTanken.kraftstoffbilliger.model.Price;
 
 import java.lang.reflect.Type;
 import java.util.List;
