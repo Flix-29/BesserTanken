@@ -4,13 +4,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import de.flix29.besserTanken.kraftstoffbilliger.deserializer.*;
+import de.flix29.besserTanken.deserializer.*;
 import de.flix29.besserTanken.kraftstoffbilliger.model.FuelStation;
 import de.flix29.besserTanken.kraftstoffbilliger.model.FuelStationDetail;
 import de.flix29.besserTanken.kraftstoffbilliger.model.FuelType;
 import de.flix29.besserTanken.kraftstoffbilliger.model.requests.Endpoints;
 import de.flix29.besserTanken.kraftstoffbilliger.model.requests.HTTPMethod;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URI;
@@ -25,11 +26,12 @@ import java.util.List;
 import java.util.Map;
 
 import static de.flix29.besserTanken.Constants.API_KEY;
-import static de.flix29.besserTanken.kraftstoffbilliger.deserializer.CustomModelTypes.*;
+import static de.flix29.besserTanken.deserializer.CustomModelTypes.*;
 import static de.flix29.besserTanken.kraftstoffbilliger.model.requests.Endpoints.*;
 import static de.flix29.besserTanken.kraftstoffbilliger.model.requests.HTTPMethod.GET;
 import static de.flix29.besserTanken.kraftstoffbilliger.model.requests.HTTPMethod.POST;
 
+@Service
 public class KraftstoffbilligerJob {
 
     private final Gson gson = new GsonBuilder()

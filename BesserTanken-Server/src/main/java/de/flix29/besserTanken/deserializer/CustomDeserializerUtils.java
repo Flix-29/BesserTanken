@@ -1,4 +1,4 @@
-package de.flix29.besserTanken.kraftstoffbilliger.deserializer;
+package de.flix29.besserTanken.deserializer;
 
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
