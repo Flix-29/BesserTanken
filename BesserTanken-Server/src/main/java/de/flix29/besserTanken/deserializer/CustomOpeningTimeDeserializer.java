@@ -4,8 +4,8 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
-import de.flix29.besserTanken.kraftstoffbilliger.model.OpeningTime;
-import de.flix29.besserTanken.kraftstoffbilliger.model.Weekdays;
+import de.flix29.besserTanken.model.kraftstoffbilliger.OpeningTime;
+import de.flix29.besserTanken.model.kraftstoffbilliger.Weekdays;
 
 import java.lang.reflect.Type;
 import java.util.List;

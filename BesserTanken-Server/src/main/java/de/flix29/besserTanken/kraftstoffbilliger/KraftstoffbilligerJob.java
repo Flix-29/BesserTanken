@@ -5,11 +5,11 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import de.flix29.besserTanken.deserializer.*;
-import de.flix29.besserTanken.kraftstoffbilliger.model.FuelStation;
-import de.flix29.besserTanken.kraftstoffbilliger.model.FuelStationDetail;
-import de.flix29.besserTanken.kraftstoffbilliger.model.FuelType;
-import de.flix29.besserTanken.kraftstoffbilliger.model.requests.Endpoints;
-import de.flix29.besserTanken.kraftstoffbilliger.model.requests.HTTPMethod;
+import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStation;
+import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStationDetail;
+import de.flix29.besserTanken.model.kraftstoffbilliger.FuelType;
+import de.flix29.besserTanken.model.kraftstoffbilliger.requests.Endpoints;
+import de.flix29.besserTanken.model.kraftstoffbilliger.requests.HTTPMethod;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +27,9 @@ import java.util.Map;
 
 import static de.flix29.besserTanken.Constants.API_KEY;
 import static de.flix29.besserTanken.deserializer.CustomModelTypes.*;
-import static de.flix29.besserTanken.kraftstoffbilliger.model.requests.Endpoints.*;
-import static de.flix29.besserTanken.kraftstoffbilliger.model.requests.HTTPMethod.GET;
-import static de.flix29.besserTanken.kraftstoffbilliger.model.requests.HTTPMethod.POST;
+import static de.flix29.besserTanken.model.kraftstoffbilliger.requests.Endpoints.*;
+import static de.flix29.besserTanken.model.kraftstoffbilliger.requests.HTTPMethod.GET;
+import static de.flix29.besserTanken.model.kraftstoffbilliger.requests.HTTPMethod.POST;
 
 @Service
 public class KraftstoffbilligerJob {
