@@ -1,15 +1,13 @@
 package de.flix29.besserTanken.model.kraftstoffbilliger;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class FuelStation {
+public class FuelStation implements Comparable<FuelStation> {
 
     private String id;
     private String brand;
@@ -21,4 +19,8 @@ public class FuelStation {
     private String lon;
     private double price;
 
+    @Override
+    public int compareTo(FuelStation o) {
+        return Double.compare(this.getPrice(), o.getPrice());
+    }
 }
