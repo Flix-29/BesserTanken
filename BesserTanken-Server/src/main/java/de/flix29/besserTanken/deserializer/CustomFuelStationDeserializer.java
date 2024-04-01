@@ -4,6 +4,8 @@ import com.google.gson.*;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStation;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class CustomFuelStationDeserializer extends CustomDeserializerUtils implements JsonDeserializer<FuelStation> {
     @Override
@@ -15,7 +17,7 @@ public class CustomFuelStationDeserializer extends CustomDeserializerUtils imple
         fuelStation.setName(getAsStringOrNull(jsonObject, "name"));
         fuelStation.setAddress(getAsStringOrNull(jsonObject, "address"));
         fuelStation.setCity(getAsStringOrNull(jsonObject, "city"));
-        fuelStation.setDistance(getAsDoubleOrDefault(jsonObject, "distance"));
+        fuelStation.setDistance(BigDecimal.valueOf(getAsDoubleOrDefault(jsonObject, "distance")).setScale(2, RoundingMode.HALF_UP));
         fuelStation.setLat(getAsStringOrNull(jsonObject, "lat"));
         fuelStation.setLon(getAsStringOrNull(jsonObject, "lon"));
         fuelStation.setPrice(getAsDoubleOrDefault(jsonObject, "price"));

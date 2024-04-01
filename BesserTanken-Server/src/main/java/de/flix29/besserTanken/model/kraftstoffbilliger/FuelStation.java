@@ -2,6 +2,8 @@ package de.flix29.besserTanken.model.kraftstoffbilliger;
 
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -14,7 +16,7 @@ public class FuelStation implements Comparable<FuelStation> {
     private String name;
     private String address;
     private String city;
-    private double distance;
+    private BigDecimal distance;
     private String lat;
     private String lon;
     private double price;

@@ -48,7 +48,6 @@ public class OpenDataSoftRequests {
 
         var response = HttpClient.newHttpClient().send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
 
-
         var jsonObject = gson.fromJson(response.body(), JsonObject.class);
         var count = jsonObject.get("total_count").getAsInt();
         var jsonArray = jsonObject.get("results").getAsJsonArray();

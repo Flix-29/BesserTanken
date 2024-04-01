@@ -11,25 +11,25 @@ import java.util.Collection;
 import java.util.List;
 
 @Service
-public class KraftstoffbilligerRequestBuilder {
+public class KraftstoffbilligerRequests {
 
     private final KraftstoffbilligerJob kraftstoffbilligerJob;
     private final OpenDataSoftRequests openDataSoftRequests;
 
-    public KraftstoffbilligerRequestBuilder() {
+    public KraftstoffbilligerRequests() {
         this.kraftstoffbilligerJob = new KraftstoffbilligerJob();
         this.openDataSoftRequests = new OpenDataSoftRequests();
     }
 
-    public List<FuelStation> getFuelStationsByPlace(String place, FuelType fuelType, int radius) {
+    public List<FuelStation> getFuelStationsByPlace(String place, FuelType fuelType, Integer radius) {
         return getFuelStationsByPlzOrPlace(place, 0, fuelType, radius);
     }
 
-    public List<FuelStation> getFuelStationsByPlz(int plz, FuelType fuelType, int radius) {
+    public List<FuelStation> getFuelStationsByPlz(int plz, FuelType fuelType, Integer radius) {
         return getFuelStationsByPlzOrPlace(null, plz, fuelType, radius);
     }
 
-    public List<FuelStation> getFuelStationsByPlzOrPlace(String place, int plz, FuelType fuelType, int radius) {
+    public List<FuelStation> getFuelStationsByPlzOrPlace(String place, int plz, FuelType fuelType, Integer radius) {
         List<Location> coordsFromPlzAndPlace;
         try {
             coordsFromPlzAndPlace = openDataSoftRequests.getCoordsFromPlzsAndPlzName(plz, place);
@@ -45,7 +45,7 @@ public class KraftstoffbilligerRequestBuilder {
                 .map(Location::getCoords)
                 .map(coords -> {
                     try {
-                        return kraftstoffbilligerJob.getFuelStations(fuelType, coords.getLeft(), coords.getRight(), String.valueOf(radius));
+                        return kraftstoffbilligerJob.getFuelStations(fuelType, coords.getLeft(), coords.getRight(), radius);
                     } catch (IOException | InterruptedException e) {
                         throw new RuntimeException(e);
                     }

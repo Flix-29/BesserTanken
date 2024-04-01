@@ -77,14 +77,14 @@ public class KraftstoffbilligerJob {
     public List<FuelStation> getFuelStations(@NotNull FuelType fuelType,
                                              @NotNull double lat,
                                              @NotNull double lon,
-                                             String radius) throws IOException, InterruptedException {
+                                             Integer radius) throws IOException, InterruptedException {
         var formData = new HashMap<>(Map.of(
                 "type", String.valueOf(fuelType.getId()),
                 "lat", String.valueOf(lat),
                 "lon", String.valueOf(lon)));
 
         if(radius != null) {
-            formData.put("radius", radius);
+            formData.put("radius", String.valueOf(radius));
         }
 
         var response = sendHttpPOSTRequestWithResponse(SEARCH_ENDPOINT, formData);
