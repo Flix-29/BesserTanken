@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class FuelStation implements Comparable<FuelStation> {
+public class FuelStation {
 
     private String id;
     private String brand;
@@ -20,9 +20,4 @@ public class FuelStation implements Comparable<FuelStation> {
     private String lat;
     private String lon;
     private double price;
-
-    @Override
-    public int compareTo(FuelStation o) {
-        return Double.compare(this.getPrice(), o.getPrice());
-    }
 }

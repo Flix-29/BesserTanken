@@ -52,7 +52,6 @@ public class KraftstoffbilligerRequests {
                 })
                 .flatMap(Collection::stream)
                 .distinct()
-                .sorted(FuelStation::compareTo)
                 .toList();
     }
 
