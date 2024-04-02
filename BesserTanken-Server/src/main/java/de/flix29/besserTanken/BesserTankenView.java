@@ -45,29 +45,38 @@ public class BesserTankenView extends VerticalLayout {
         var placeField = new TextField("Place or plz: ", "'Berlin' or '10178'");
 
         Select<String> orderBySelect = new Select<>(selectStringComponentValueChangeEvent ->
-                performSearch(placeField.getValue(),
+                performSearch(
+                        placeField.getValue(),
                         FuelType.fromName(fuelTypeSelect.getValue()),
                         radiusField.getValue().isEmpty() ? null : Integer.parseInt(radiusField.getValue()),
-                        selectStringComponentValueChangeEvent.getValue()));
+                        selectStringComponentValueChangeEvent.getValue()
+                )
+        );
         orderBySelect.setItems("Price", "Distance");
         orderBySelect.setLabel("Order by: ");
         orderBySelect.setValue("Price");
 
         var searchButton = new Button("Search",
-                event -> performSearch(placeField.getValue(),
+                event -> performSearch(
+                        placeField.getValue(),
                         FuelType.fromName(fuelTypeSelect.getValue()),
                         radiusField.getValue().isEmpty() ? null : Integer.parseInt(radiusField.getValue()),
                         orderBySelect.getValue()
                 )
         );
 
+        HorizontalLayout orderByLayout = new HorizontalLayout(orderBySelect);
+        orderByLayout.setWidthFull();
+        orderByLayout.setJustifyContentMode(JustifyContentMode.END);
+
         var horizontalLayout = new HorizontalLayout(
                 placeField,
                 fuelTypeSelect,
                 radiusField,
                 searchButton,
-                orderBySelect
+                orderByLayout
         );
+        horizontalLayout.setWidthFull();
         horizontalLayout.setVerticalComponentAlignment(Alignment.END, searchButton);
 
         add(
@@ -77,7 +86,7 @@ public class BesserTankenView extends VerticalLayout {
     }
 
     private void performSearch(String place, FuelType fuelType, Integer radius, String orderBy) {
-        List<FuelStation> fuelStationsByPlzOrPlace = null;
+        List<FuelStation> fuelStationsByPlzOrPlace;
         if (!place.isEmpty()) {
             try {
                 var plz = Integer.parseInt(place);
@@ -88,10 +97,10 @@ public class BesserTankenView extends VerticalLayout {
                 fuelStationsByPlzOrPlace = kraftstoffbilligerRequests.getFuelStationsByPlace(place, fuelType, radius);
             }
             LOGGER.info("Found {} fuel stations.", fuelStationsByPlzOrPlace.size());
+            displayFuelStations(fuelStationsByPlzOrPlace, orderBy);
         } else {
             LOGGER.warn("Please fill in a place or plz.");
         }
-        displayFuelStations(fuelStationsByPlzOrPlace, orderBy);
     }
 
     private void displayFuelStations(List<FuelStation> fuelStationsByPlzOrPlace, String orderBy) {
@@ -110,7 +119,7 @@ public class BesserTankenView extends VerticalLayout {
                         }
                     })
                     .forEach(fuelStation -> {
-//TODO better naming
+                        //TODO better naming
                         var h1 = new H1(fuelStation.getPrice() + "€");
                         h1.setWidth("max-content");
 
@@ -130,7 +139,6 @@ public class BesserTankenView extends VerticalLayout {
                         layoutColumn2.addClassName(LumoUtility.Gap.SMALL);
                         layoutColumn2.addClassName(LumoUtility.Padding.SMALL);
                         layoutColumn2.setWidthFull();
-                        layoutColumn2.setHeightFull();
                         layoutColumn2.setJustifyContentMode(JustifyContentMode.CENTER);
                         layoutColumn2.setAlignItems(Alignment.START);
 
@@ -139,7 +147,6 @@ public class BesserTankenView extends VerticalLayout {
                         layoutColumn3.setSpacing(false);
                         layoutColumn3.addClassName(LumoUtility.Padding.XSMALL);
                         layoutColumn3.setWidth("min-content");
-                        layoutColumn3.setHeightFull();
                         layoutColumn3.setJustifyContentMode(JustifyContentMode.CENTER);
                         layoutColumn3.setAlignItems(Alignment.CENTER);
                         layoutColumn3.setAlignSelf(FlexComponent.Alignment.END, h1);
@@ -147,7 +154,6 @@ public class BesserTankenView extends VerticalLayout {
 
                         var layoutRow = new HorizontalLayout(layoutColumn2, layoutColumn3);
                         layoutRow.addClassName("temp");
-                        layoutRow.setWidthFull();
                         layoutRow.setWidthFull();
                         layoutRow.setHeight("min-content");
                         layoutRow.setAlignItems(Alignment.CENTER);
@@ -162,7 +168,9 @@ public class BesserTankenView extends VerticalLayout {
                         add(layoutRow);
                     });
         } else {
-            add(new H2("No fuel stations found."));
+            var h2 = new H2("No fuel stations found.");
+            h2.addClassName("temp");
+            add(h2);
         }
     }
 
