@@ -95,19 +95,19 @@ public class BesserTankenView extends VerticalLayout {
                 h3.setWidth("max-content");
 
                 Paragraph textMedium = new Paragraph(fuelStation.getAddress() + ", " + fuelStation.getCity());
-                textMedium.setWidth("100%");
-                textMedium.getStyle().set("font-size", "var(--lumo-font-size-m)");
+                textMedium.setWidthFull();
+                textMedium.getStyle().setFontSize("var(--lumo-font-size-m)");
 
                 Paragraph textMedium2 = new Paragraph(fuelStation.getDistance() + " km");
                 textMedium2.setWidth("max-content");
-                textMedium2.getStyle().set("font-size", "var(--lumo-font-size-m)");
+                textMedium2.getStyle().setFontSize("var(--lumo-font-size-m)");
 
                 VerticalLayout layoutColumn2 = new VerticalLayout(h3, textMedium);
                 layoutColumn2.setHeightFull();
                 layoutColumn2.addClassName(LumoUtility.Gap.SMALL);
                 layoutColumn2.addClassName(LumoUtility.Padding.SMALL);
-                layoutColumn2.setWidth("100%");
-                layoutColumn2.setHeight("100%");
+                layoutColumn2.setWidthFull();
+                layoutColumn2.setHeightFull();
                 layoutColumn2.setJustifyContentMode(JustifyContentMode.CENTER);
                 layoutColumn2.setAlignItems(Alignment.START);
 
@@ -116,7 +116,7 @@ public class BesserTankenView extends VerticalLayout {
                 layoutColumn3.setSpacing(false);
                 layoutColumn3.addClassName(LumoUtility.Padding.XSMALL);
                 layoutColumn3.setWidth("min-content");
-                layoutColumn3.setHeight("100%");
+                layoutColumn3.setHeightFull();
                 layoutColumn3.setJustifyContentMode(JustifyContentMode.CENTER);
                 layoutColumn3.setAlignItems(Alignment.CENTER);
                 layoutColumn3.setAlignSelf(FlexComponent.Alignment.END, h1);
@@ -124,7 +124,7 @@ public class BesserTankenView extends VerticalLayout {
 
                 HorizontalLayout layoutRow = new HorizontalLayout(layoutColumn2, layoutColumn3);
                 layoutRow.setWidthFull();
-                layoutRow.setWidth("100%");
+                layoutRow.setWidthFull();
                 layoutRow.setHeight("min-content");
                 layoutRow.setAlignItems(Alignment.CENTER);
                 layoutRow.setJustifyContentMode(JustifyContentMode.CENTER);
@@ -132,7 +132,7 @@ public class BesserTankenView extends VerticalLayout {
                 layoutRow.setFlexGrow(1.0, layoutColumn3);
                 layoutRow.getStyle().setBorder("3px solid var(--lumo-contrast-10pct)");
 
-                setWidth("100%");
+                setWidthFull();
                 getStyle().set("flex-grow", "1");
                 setFlexGrow(1.0, layoutRow);
                 add(layoutRow);
