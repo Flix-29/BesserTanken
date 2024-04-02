@@ -11,9 +11,9 @@ out/
 
 # vaadin generated files
 node_modules/
-/BesserTanken-Server/frontend/generated/
+frontend/generated/
 pnpmfile.js
 vite.generated.ts
 
 # Secrets
-/BesserTanken-Server/src/main/java/de/flix29/besserTanken/Constants.java
+src/main/java/de/flix29/besserTanken/Constants.java
