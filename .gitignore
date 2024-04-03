@@ -1,4 +1,4 @@
-target/
+/target/
 out/
 .idea/
 .vscode/
@@ -10,8 +10,8 @@ out/
 .DS_Store
 
 # vaadin generated files
-node_modules/
-frontend/generated/
+/node_modules/
+/frontend/generated/
 pnpmfile.js
 vite.generated.ts
 
