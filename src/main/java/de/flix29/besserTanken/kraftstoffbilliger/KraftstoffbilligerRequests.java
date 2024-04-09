@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -38,7 +39,7 @@ public class KraftstoffbilligerRequests {
         }
 
         if(coordsFromPlzAndPlace == null || coordsFromPlzAndPlace.isEmpty()) {
-            return null;
+            return Collections.emptyList();
         }
 
         return coordsFromPlzAndPlace.stream()
