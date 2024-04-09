@@ -1,10 +1,7 @@
 package de.flix29.besserTanken;
 
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -49,7 +46,8 @@ public class BesserTankenView extends VerticalLayout {
                         placeField.getValue(),
                         FuelType.fromName(fuelTypeSelect.getValue()),
                         radiusField.getValue().isEmpty() ? null : Integer.parseInt(radiusField.getValue()),
-                        selectStringComponentValueChangeEvent.getValue()
+                        selectStringComponentValueChangeEvent.getValue(),
+                        10
                 )
         );
         orderBySelect.setItems("Price", "Distance");
@@ -61,7 +59,8 @@ public class BesserTankenView extends VerticalLayout {
                         placeField.getValue(),
                         FuelType.fromName(fuelTypeSelect.getValue()),
                         radiusField.getValue().isEmpty() ? null : Integer.parseInt(radiusField.getValue()),
-                        orderBySelect.getValue()
+                        orderBySelect.getValue(),
+                        10
                 )
         );
 
@@ -81,11 +80,12 @@ public class BesserTankenView extends VerticalLayout {
 
         add(
                 new H1("BesserTanken"),
-                horizontalLayout
+                horizontalLayout,
+                new Hr()
         );
     }
 
-    private void performSearch(String place, FuelType fuelType, Integer radius, String orderBy) {
+    private void performSearch(String place, FuelType fuelType, Integer radius, String orderBy, int limit) {
         List<FuelStation> fuelStationsByPlzOrPlace;
         if (!place.isEmpty()) {
             try {
@@ -97,13 +97,13 @@ public class BesserTankenView extends VerticalLayout {
                 fuelStationsByPlzOrPlace = kraftstoffbilligerRequests.getFuelStationsByPlace(place, fuelType, radius);
             }
             LOGGER.info("Found {} fuel stations.", fuelStationsByPlzOrPlace.size());
-            displayFuelStations(fuelStationsByPlzOrPlace, orderBy);
+            displayFuelStations(fuelStationsByPlzOrPlace, orderBy, limit);
         } else {
             LOGGER.warn("Please fill in a place or plz.");
         }
     }
 
-    private void displayFuelStations(List<FuelStation> fuelStationsByPlzOrPlace, String orderBy) {
+    private void displayFuelStations(List<FuelStation> fuelStationsByPlzOrPlace, String orderBy, int limit) {
         getChildren()
                 .filter(child -> child.hasClassName("temp"))
                 .forEach(this::remove);
@@ -118,6 +118,7 @@ public class BesserTankenView extends VerticalLayout {
                             return Double.compare(fuelStation1.getPrice(), fuelStation2.getPrice());
                         }
                     })
+                    .limit(limit)
                     .forEach(fuelStation -> {
                         //TODO better naming
                         var h1 = new H1(fuelStation.getPrice() + "€");
