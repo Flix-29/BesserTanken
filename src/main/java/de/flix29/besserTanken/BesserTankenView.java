@@ -120,47 +120,46 @@ public class BesserTankenView extends VerticalLayout {
                     })
                     .limit(10)
                     .forEach(fuelStation -> {
-                        //TODO better naming
-                        var h1 = new H1(fuelStation.getPrice() + "€");
-                        h1.setWidth("max-content");
+                        var price = new H1(fuelStation.getPrice() + "€");
+                        price.setWidth("max-content");
 
-                        var h3 = new H3(fuelStation.getName());
-                        h3.setWidth("max-content");
+                        var name = new H3(fuelStation.getName());
+                        name.setWidth("max-content");
 
-                        var textMedium = new Paragraph(fuelStation.getAddress() + ", " + fuelStation.getCity());
-                        textMedium.setWidthFull();
-                        textMedium.getStyle().setFontSize("var(--lumo-font-size-m)");
+                        var address = new Paragraph(fuelStation.getAddress() + ", " + fuelStation.getCity());
+                        address.setWidthFull();
+                        address.getStyle().setFontSize("var(--lumo-font-size-m)");
 
-                        var textMedium2 = new Paragraph(fuelStation.getDistance() + " km");
-                        textMedium2.setWidth("max-content");
-                        textMedium2.getStyle().setFontSize("var(--lumo-font-size-m)");
+                        var distance = new Paragraph(fuelStation.getDistance() + " km");
+                        distance.setWidth("max-content");
+                        distance.getStyle().setFontSize("var(--lumo-font-size-m)");
 
-                        var layoutColumn2 = new VerticalLayout(h3, textMedium);
-                        layoutColumn2.setHeightFull();
-                        layoutColumn2.addClassName(LumoUtility.Gap.SMALL);
-                        layoutColumn2.addClassName(LumoUtility.Padding.SMALL);
-                        layoutColumn2.setWidthFull();
-                        layoutColumn2.setJustifyContentMode(JustifyContentMode.CENTER);
-                        layoutColumn2.setAlignItems(Alignment.START);
+                        var layoutNameAddress = new VerticalLayout(name, address);
+                        layoutNameAddress.setHeightFull();
+                        layoutNameAddress.addClassName(LumoUtility.Gap.SMALL);
+                        layoutNameAddress.addClassName(LumoUtility.Padding.SMALL);
+                        layoutNameAddress.setWidthFull();
+                        layoutNameAddress.setJustifyContentMode(JustifyContentMode.CENTER);
+                        layoutNameAddress.setAlignItems(Alignment.START);
 
-                        var layoutColumn3 = new VerticalLayout(h1, textMedium2);
-                        layoutColumn3.setHeightFull();
-                        layoutColumn3.setSpacing(false);
-                        layoutColumn3.addClassName(LumoUtility.Padding.XSMALL);
-                        layoutColumn3.setWidth("min-content");
-                        layoutColumn3.setJustifyContentMode(JustifyContentMode.CENTER);
-                        layoutColumn3.setAlignItems(Alignment.CENTER);
-                        layoutColumn3.setAlignSelf(FlexComponent.Alignment.END, h1);
-                        layoutColumn3.setAlignSelf(FlexComponent.Alignment.CENTER, textMedium2);
+                        var layoutPriceDistance = new VerticalLayout(price, distance);
+                        layoutPriceDistance.setHeightFull();
+                        layoutPriceDistance.setSpacing(false);
+                        layoutPriceDistance.addClassName(LumoUtility.Padding.XSMALL);
+                        layoutPriceDistance.setWidth("min-content");
+                        layoutPriceDistance.setJustifyContentMode(JustifyContentMode.CENTER);
+                        layoutPriceDistance.setAlignItems(Alignment.CENTER);
+                        layoutPriceDistance.setAlignSelf(FlexComponent.Alignment.END, price);
+                        layoutPriceDistance.setAlignSelf(FlexComponent.Alignment.CENTER, distance);
 
-                        var layoutRow = new HorizontalLayout(layoutColumn2, layoutColumn3);
+                        var layoutRow = new HorizontalLayout(layoutNameAddress, layoutPriceDistance);
                         layoutRow.addClassName("temp");
                         layoutRow.setWidthFull();
                         layoutRow.setHeight("min-content");
                         layoutRow.setAlignItems(Alignment.CENTER);
                         layoutRow.setJustifyContentMode(JustifyContentMode.CENTER);
-                        layoutRow.setFlexGrow(1.0, layoutColumn2);
-                        layoutRow.setFlexGrow(1.0, layoutColumn3);
+                        layoutRow.setFlexGrow(1.0, layoutNameAddress);
+                        layoutRow.setFlexGrow(1.0, layoutPriceDistance);
                         layoutRow.getStyle().setBorder("3px solid var(--lumo-contrast-10pct)");
 
                         setWidthFull();
