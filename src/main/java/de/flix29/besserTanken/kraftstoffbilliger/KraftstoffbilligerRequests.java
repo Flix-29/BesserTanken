@@ -23,26 +23,31 @@ public class KraftstoffbilligerRequests {
     }
 
     public List<FuelStation> getFuelStationsByPlace(String place, FuelType fuelType, Integer radius) {
-        return getFuelStationsByPlzOrPlace(place, 0, fuelType, radius);
+        var cords = getCords(place, 0);
+        return getFuelStationsByLocation(cords, fuelType, radius);
     }
 
     public List<FuelStation> getFuelStationsByPlz(int plz, FuelType fuelType, Integer radius) {
-        return getFuelStationsByPlzOrPlace(null, plz, fuelType, radius);
+        var cords = getCords(null, plz);
+        return getFuelStationsByLocation(cords, fuelType, radius);
     }
 
-    public List<FuelStation> getFuelStationsByPlzOrPlace(String place, int plz, FuelType fuelType, Integer radius) {
+    private List<Location> getCords(String place, int plz) {
         List<Location> coordsFromPlzAndPlace;
         try {
             coordsFromPlzAndPlace = openDataSoftRequests.getCoordsFromPlzsAndPlzName(plz, place);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+        return coordsFromPlzAndPlace;
+    }
 
-        if(coordsFromPlzAndPlace == null || coordsFromPlzAndPlace.isEmpty()) {
+    public List<FuelStation> getFuelStationsByLocation(List<Location> locations, FuelType fuelType, Integer radius) {
+        if(locations == null || locations.isEmpty()) {
             return Collections.emptyList();
         }
 
-        return coordsFromPlzAndPlace.stream()
+        return locations.stream()
                 .map(Location::getCoords)
                 .map(coords -> {
                     try {

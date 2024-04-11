@@ -15,12 +15,20 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import de.flix29.besserTanken.kraftstoffbilliger.KraftstoffbilligerRequests;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStation;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelType;
+import de.flix29.besserTanken.model.openDataSoft.Location;
 import jakarta.annotation.security.PermitAll;
+import org.apache.commons.lang3.tuple.Pair;
+import org.gwtproject.geolocation.client.Callback;
+import org.gwtproject.geolocation.client.Geolocation;
+import org.gwtproject.geolocation.client.Position;
+import org.gwtproject.geolocation.client.PositionError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @PageTitle("BesserTanken")
 @Route(value = "besserTanken")
@@ -34,15 +42,25 @@ public class BesserTankenView extends VerticalLayout {
     private List<FuelStation> fuelStations;
 
     public BesserTankenView() {
+        var radiusField = new TextField("Enter radius (km): ", "5", "5");
+        var placeField = new TextField("Place or plz: ", "'Berlin' or '10178'");
+
+        AtomicBoolean useCurrentLocation = new AtomicBoolean();
+        Select<String> useCurrentLocationSelect = new Select<>(event -> {
+            useCurrentLocation.set(event.getValue().equals("Use location"));
+            placeField.setValue("");
+            placeField.setVisible(!useCurrentLocation.get());
+        });
+        useCurrentLocationSelect.setItems("Use location", "Use plz/place");
+        useCurrentLocationSelect.setLabel("Select search type: ");
+        useCurrentLocationSelect.setValue("Use plz/place");
+
         Select<String> fuelTypeSelect = new Select<>();
         fuelTypeSelect.setItems(Arrays.stream(FuelType.values())
                 .map(FuelType::getName)
                 .toArray(String[]::new));
         fuelTypeSelect.setLabel("Select fuel type: ");
         fuelTypeSelect.setValue(FuelType.DIESEL.getName());
-
-        var radiusField = new TextField("Enter radius (km): ", "5", "5");
-        var placeField = new TextField("Place or plz: ", "'Berlin' or '10178'");
 
         Select<String> orderBySelect = new Select<>(event ->
                 displayFuelStations(
@@ -55,6 +73,7 @@ public class BesserTankenView extends VerticalLayout {
 
         var searchButton = new Button("Search",
                 event -> performSearch(
+                        useCurrentLocation.get() ? getCurrentLocation() : null,
                         placeField.getValue(),
                         FuelType.fromName(fuelTypeSelect.getValue()),
                         radiusField.getValue().isEmpty() ? null : Integer.parseInt(radiusField.getValue()),
@@ -68,6 +87,7 @@ public class BesserTankenView extends VerticalLayout {
         orderByLayout.setJustifyContentMode(JustifyContentMode.END);
 
         var horizontalLayout = new HorizontalLayout(
+                useCurrentLocationSelect,
                 placeField,
                 fuelTypeSelect,
                 radiusField,
@@ -84,8 +104,33 @@ public class BesserTankenView extends VerticalLayout {
         );
     }
 
-    private void performSearch(String place, FuelType fuelType, Integer radius, String orderBy) {
-        if (!place.isEmpty()) {
+    private Location getCurrentLocation() {
+        Location location = new Location();
+        Geolocation geolocation = Geolocation.getIfSupported();
+
+        geolocation.getCurrentPosition(new Callback<>() {
+            @Override
+            public void onFailure(PositionError positionError) {
+            }
+
+            @Override
+            public void onSuccess(Position position) {
+                var latitude = position.getCoordinates().getLatitude();
+                var longitude = position.getCoordinates().getLongitude();
+                location.setCoords(Pair.of(latitude, longitude));
+                LOGGER.info("Use latitude: {}, Longitude: {}", latitude, longitude);
+            }
+        });
+
+        return location;
+    }
+
+    private void performSearch(Location location, String place, FuelType fuelType, Integer radius, String orderBy) {
+        fuelStations = new ArrayList<>();
+        if(location != null) {
+            LOGGER.info("Searching location: {} with fuel type: {} and radius: {}.", location, fuelType, radius);
+            fuelStations = kraftstoffbilligerRequests.getFuelStationsByLocation(List.of(location), fuelType, radius);
+        } else if (!place.isEmpty()) {
             try {
                 var plz = Integer.parseInt(place);
                 LOGGER.info("Searching plz: {} with fuel type: {} and radius: {}.", plz, fuelType, radius);
@@ -94,11 +139,11 @@ public class BesserTankenView extends VerticalLayout {
                 LOGGER.info("Searching place: {} with fuel type: {} and radius: {}.", place, fuelType, radius);
                 fuelStations = kraftstoffbilligerRequests.getFuelStationsByPlace(place, fuelType, radius);
             }
-            LOGGER.info("Found {} fuel stations.", fuelStations.size());
-            displayFuelStations(orderBy);
         } else {
             LOGGER.warn("Please fill in a place or plz.");
         }
+        LOGGER.info("Found {} fuel stations.", fuelStations.size());
+        displayFuelStations(orderBy);
     }
 
     private void displayFuelStations(String orderBy) {
