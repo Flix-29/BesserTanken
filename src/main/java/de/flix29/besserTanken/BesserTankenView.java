@@ -127,7 +127,7 @@ public class BesserTankenView extends VerticalLayout {
 
     private void performSearch(Location location, String place, FuelType fuelType, Integer radius, String orderBy) {
         fuelStations = new ArrayList<>();
-        if(location != null) {
+        if(location != null && location.getCoords() != null) {
             LOGGER.info("Searching location: {} with fuel type: {} and radius: {}.", location, fuelType, radius);
             fuelStations = kraftstoffbilligerRequests.getFuelStationsByLocation(List.of(location), fuelType, radius);
         } else if (!place.isEmpty()) {
@@ -140,7 +140,7 @@ public class BesserTankenView extends VerticalLayout {
                 fuelStations = kraftstoffbilligerRequests.getFuelStationsByPlace(place, fuelType, radius);
             }
         } else {
-            LOGGER.warn("Please fill in a place or plz.");
+            LOGGER.warn("Please fill in a place or plz or agree to use your location.");
         }
         LOGGER.info("Found {} fuel stations.", fuelStations.size());
         displayFuelStations(orderBy);
