@@ -5,7 +5,7 @@ updates:
     schedule:
       interval: "daily"
     commit-message:
-      prefix: "Dependency"
+      prefix: "maven dependency"
     labels:
       - "dependency"
 
@@ -14,7 +14,7 @@ updates:
     schedule:
       interval: "daily"
     commit-message:
-      prefix: "Dependency"
+      prefix: "npm dependency"
     labels:
       - "dependency"
       
