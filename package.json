@@ -75,7 +75,7 @@
     "@vaadin/vertical-layout": "24.3.10",
     "@vaadin/virtual-list": "24.3.10",
     "construct-style-sheets-polyfill": "3.1.0",
-    "date-fns": "2.29.3",
+    "date-fns": "3.6.0",
     "lit": "3.1.2",
     "proj4": "2.9.2"
   },
@@ -171,7 +171,7 @@
       "@vaadin/vertical-layout": "24.3.10",
       "@vaadin/virtual-list": "24.3.10",
       "construct-style-sheets-polyfill": "3.1.0",
-      "date-fns": "2.29.3",
+      "date-fns": "3.6.0",
       "lit": "3.1.2",
       "proj4": "2.9.2"
     },
