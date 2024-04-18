@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//import static de.flix29.besserTanken.Constants.API_KEY;
+import static de.flix29.besserTanken.Constants.API_KEY;
 import static de.flix29.besserTanken.deserializer.CustomModelTypes.*;
 import static de.flix29.besserTanken.model.kraftstoffbilliger.requests.Endpoints.*;
 import static de.flix29.besserTanken.model.kraftstoffbilliger.requests.HTTPMethod.GET;
@@ -54,7 +54,7 @@ public class KraftstoffbilligerJob {
     private HttpResponse<String> sendHttpRequestWithResponse(Endpoints endpoint, HTTPMethod httpMethod, Map<String, String> parameter) throws IOException, InterruptedException {
         var requestBuilder = HttpRequest.newBuilder()
                 .uri(URI.create(endpoint.getUrl()))
-                .header("apikey", System.getenv("API_KEY"));
+                .header("apikey", System.getenv().getOrDefault("API_KEY", API_KEY));
 
         if (httpMethod == GET) {
             requestBuilder.GET();
