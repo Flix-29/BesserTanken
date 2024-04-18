@@ -54,7 +54,7 @@ public class KraftstoffbilligerJob {
     private HttpResponse<String> sendHttpRequestWithResponse(Endpoints endpoint, HTTPMethod httpMethod, Map<String, String> parameter) throws IOException, InterruptedException {
         var requestBuilder = HttpRequest.newBuilder()
                 .uri(URI.create(endpoint.getUrl()))
-                .header("apikey", System.getenv().get("API_KEY"));
+                .header("apikey", System.getenv("API_KEY"));
 
         if (httpMethod == GET) {
             requestBuilder.GET();
