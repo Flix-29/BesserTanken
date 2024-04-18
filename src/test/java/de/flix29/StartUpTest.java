@@ -14,7 +14,7 @@ public class StartUpTest {
 	}
 
 	@Test
-	void loadEnv() {
+	void loadRepositorySecrets() {
 		String env = System.getenv("API_KEY");
 
 		assertThat(env)
