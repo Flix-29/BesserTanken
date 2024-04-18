@@ -17,7 +17,8 @@ public class StartUpTest {
 	void loadEnv() {
 		String env = System.getenv("API_KEY");
 
-		assertThat(env).isNotNull();
+		assertThat(env)
+				.isNotBlank();
 	}
 
 }
