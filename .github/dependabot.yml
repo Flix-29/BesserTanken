@@ -14,7 +14,9 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      time: "03:00"
+      timezone: "Europe/Berlin"
     commit-message:
       prefix: "npm dependency"
     labels:
