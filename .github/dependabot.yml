@@ -1,0 +1,23 @@
+version: 2
+updates:
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      time: "03:00"
+      timezone: "Europe/Berlin"
+    commit-message:
+      prefix: "maven dependency"
+    labels:
+      - "dependency"
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      time: "03:00"
+      timezone: "Europe/Berlin"
+    commit-message:
+      prefix: "npm dependency"
+    labels:
+      - "dependency"
