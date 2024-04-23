@@ -5,11 +5,8 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.*;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.PendingJavaScriptResult;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
@@ -20,27 +17,15 @@ import de.flix29.besserTanken.kraftstoffbilliger.KraftstoffbilligerRequests;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStation;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelType;
 import de.flix29.besserTanken.model.openDataSoft.Location;
-import elemental.json.Json;
-import elemental.json.JsonObject;
 import jakarta.annotation.security.PermitAll;
-import org.apache.commons.lang3.CharSet;
 import org.apache.commons.lang3.tuple.Pair;
-import org.gwtproject.geolocation.client.Callback;
-import org.gwtproject.geolocation.client.Geolocation;
-import org.gwtproject.geolocation.client.Position;
-import org.gwtproject.geolocation.client.PositionError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.script.*;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 @PageTitle("BesserTanken")
 @Route(value = "besserTanken")
@@ -51,20 +36,26 @@ public class BesserTankenView extends VerticalLayout {
     private final Logger LOGGER = LoggerFactory.getLogger(BesserTankenView.class);
     private final KraftstoffbilligerRequests kraftstoffbilligerRequests = new KraftstoffbilligerRequests();
 
+    private Select<String> useCurrentLocationSelect;
+
     private List<FuelStation> fuelStations;
+    private AtomicBoolean useCurrentLocation = new AtomicBoolean();
     private Location currentLocation;
 
     public BesserTankenView() {
-        currentLocation = getCurrentLocation();
-
         var radiusField = new TextField("Enter radius (km): ", "5", "5");
         var placeField = new TextField("Place or plz: ", "'Berlin' or '10178'");
 
-        AtomicBoolean useCurrentLocation = new AtomicBoolean();
-        Select<String> useCurrentLocationSelect = new Select<>(event -> {
+        useCurrentLocationSelect = new Select<>(event -> {
             useCurrentLocation.set(event.getValue().equals("Use location"));
             placeField.setValue("");
             placeField.setVisible(!useCurrentLocation.get());
+            if(useCurrentLocation.get()) {
+                getCurrentLocation();
+            } else {
+                currentLocation = null;
+                useCurrentLocation.set(false);
+            }
         });
         useCurrentLocationSelect.setItems("Use location", "Use plz/place");
         useCurrentLocationSelect.setLabel("Select search type: ");
@@ -119,18 +110,7 @@ public class BesserTankenView extends VerticalLayout {
         );
     }
 
-    private Location getCurrentLocation() {
-//        List<ScriptEngineFactory> engineFactories = new ScriptEngineManager().getEngineFactories();
-//        ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
-//        ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("graal.js");
-
-        AtomicReference<Location> currentPosition = new AtomicReference<>(new Location());
-//
-        var current = UI.getCurrent().getPage();
-
-//        UI.getCurrent().getPage().addJavaScript("src/main/javascript/Geolocator.js");
-//        UI.getCurrent().getPage().addJavaScript("frontend://geolocation.js");
-
+    private void getCurrentLocation() {
         LOGGER.info("start");
         UI.getCurrent().getPage().executeJs("""
                 function getCurrentLocation() {
@@ -150,74 +130,26 @@ public class BesserTankenView extends VerticalLayout {
                 getCurrentLocation().then(
                     coords => $0.$server.receiveCoords(coords)
                 ).catch(error => {
+                    $0.$server.receiveCoords([])
                     console.error("Error getting location:", error);
-                    return null;
                 });
                 """, this);
-//                .then(Double[].class, result -> {
-//                    Location location = new Location();
-//                    LOGGER.info("Result: {}, {}", result[0], result[1]);
-//                    location.setCoords(Pair.of(result[0], result[1]));
-//
-//                    performSearch(location, "", FuelType.DIESEL, 5, "Price");
-//                });
-
-        //TODO use constructor
-
-
-//        return currentPosition.get();
-
-
-
-//        try {
-//            scriptEngine.eval(Files.newBufferedReader(Path.of("src/main/javascript/Geolocator.js")));
-//
-//            Invocable invocable = (Invocable) scriptEngine;
-//
-//            currentPosition = (Double[]) invocable.invokeFunction("getCurrentPosition");
-//        } catch (ScriptException | IOException | NoSuchMethodException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//        if(currentPosition.get() == null) {
-//            return null;
-//        }
-//
-//        var location = new Location();
-//        location.setCoords(Pair.of(currentPosition[0], currentPosition[1]));
-//        return location;
-
-//        Location location = new Location();
-//        Geolocation geolocation = Geolocation.getIfSupported();
-//
-//        geolocation.getCurrentPosition(new Callback<>() {
-//            @Override
-//            public void onFailure(PositionError positionError) {
-//            }
-//
-//            @Override
-//            public void onSuccess(Position position) {
-//                var latitude = position.getCoordinates().getLatitude();
-//                var longitude = position.getCoordinates().getLongitude();
-//                location.setCoords(Pair.of(latitude, longitude));
-//                LOGGER.info("Use latitude: {}, Longitude: {}", latitude, longitude);
-//            }
-//        });
-//
-//        return location;
-        return null;
-    }
-
-    private void receiveCoords(double latitude, double longitude) {
-        Notification.show("Latitude: " + latitude + ", Longitude: " + longitude);
-        // Now you can use latitude and longitude in your Java code
     }
 
     @ClientCallable
     private void receiveCoords(Double[] coords) {
+        if (coords == null || coords.length != 2) {
+            LOGGER.warn("Received invalid coordinates: {}", coords);
+            currentLocation = null;
+            useCurrentLocation.set(false);
+            useCurrentLocationSelect.setValue("Use plz/place");
+            return;
+        }
         double latitude = coords[0];
         double longitude = coords[1];
-        receiveCoords(latitude, longitude);
+
+        currentLocation = new Location();
+        currentLocation.setCoords(Pair.of(latitude, longitude));
     }
 
     private void performSearch(Location location, String place, FuelType fuelType, Integer radius, String orderBy) {
