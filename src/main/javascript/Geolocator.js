@@ -3,7 +3,7 @@ function getCurrentLocation() {
         navigator.geolocation.getCurrentPosition(
             position => {
                 let coords = position.coords;
-                resolve({ latitude: coords.latitude, longitude: coords.longitude });
+                resolve([coords.latitude, coords.longitude]);
             },
             error => {
                 reject(error);
@@ -15,6 +15,6 @@ function getCurrentLocation() {
 getCurrentLocation().then(
     coords => $0.$server.receiveCoords(coords)
 ).catch(error => {
+    $0.$server.receiveCoords([])
     console.error("Error getting location:", error);
-    return null;
 });

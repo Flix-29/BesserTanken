@@ -22,10 +22,12 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @PageTitle("BesserTanken")
 @Route(value = "besserTanken")
@@ -36,10 +38,10 @@ public class BesserTankenView extends VerticalLayout {
     private final Logger LOGGER = LoggerFactory.getLogger(BesserTankenView.class);
     private final KraftstoffbilligerRequests kraftstoffbilligerRequests = new KraftstoffbilligerRequests();
 
-    private Select<String> useCurrentLocationSelect;
+    private final Select<String> useCurrentLocationSelect;
 
     private List<FuelStation> fuelStations;
-    private AtomicBoolean useCurrentLocation = new AtomicBoolean();
+    private boolean useCurrentLocation;
     private Location currentLocation;
 
     public BesserTankenView() {
@@ -47,14 +49,13 @@ public class BesserTankenView extends VerticalLayout {
         var placeField = new TextField("Place or plz: ", "'Berlin' or '10178'");
 
         useCurrentLocationSelect = new Select<>(event -> {
-            useCurrentLocation.set(event.getValue().equals("Use location"));
+            useCurrentLocation = event.getValue().equals("Use location");
             placeField.setValue("");
-            placeField.setVisible(!useCurrentLocation.get());
-            if(useCurrentLocation.get()) {
+            placeField.setVisible(!useCurrentLocation);
+            if(useCurrentLocation) {
                 getCurrentLocation();
             } else {
                 currentLocation = null;
-                useCurrentLocation.set(false);
             }
         });
         useCurrentLocationSelect.setItems("Use location", "Use plz/place");
@@ -79,7 +80,7 @@ public class BesserTankenView extends VerticalLayout {
 
         var searchButton = new Button("Search",
                 event -> performSearch(
-                        useCurrentLocation.get() ? currentLocation : null,
+                        useCurrentLocation ? currentLocation : null,
                         placeField.getValue(),
                         FuelType.fromName(fuelTypeSelect.getValue()),
                         radiusField.getValue().isEmpty() ? null : Integer.parseInt(radiusField.getValue()),
@@ -111,45 +112,27 @@ public class BesserTankenView extends VerticalLayout {
     }
 
     private void getCurrentLocation() {
-        LOGGER.info("start");
-        UI.getCurrent().getPage().executeJs("""
-                function getCurrentLocation() {
-                    return new Promise((resolve, reject) => {
-                        navigator.geolocation.getCurrentPosition(
-                            position => {
-                                let coords = position.coords;
-                                resolve([coords.latitude, coords.longitude]);
-                            },
-                            error => {
-                                reject(error);
-                            }
-                        );
-                    });
-                }
-                
-                getCurrentLocation().then(
-                    coords => $0.$server.receiveCoords(coords)
-                ).catch(error => {
-                    $0.$server.receiveCoords([])
-                    console.error("Error getting location:", error);
-                });
-                """, this);
+        LOGGER.info("Trying to get current location.");
+        try {
+            String javascript = Files.readString(Path.of("src/main/javascript/Geolocator.js"));
+            UI.getCurrent().getPage().executeJs(javascript, this);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @ClientCallable
     private void receiveCoords(Double[] coords) {
         if (coords == null || coords.length != 2) {
-            LOGGER.warn("Received invalid coordinates: {}", coords);
+            LOGGER.warn("Received invalid coordinates.");
             currentLocation = null;
-            useCurrentLocation.set(false);
+            useCurrentLocation = false;
             useCurrentLocationSelect.setValue("Use plz/place");
             return;
         }
-        double latitude = coords[0];
-        double longitude = coords[1];
 
         currentLocation = new Location();
-        currentLocation.setCoords(Pair.of(latitude, longitude));
+        currentLocation.setCoords(Pair.of(coords[0], coords[1]));
     }
 
     private void performSearch(Location location, String place, FuelType fuelType, Integer radius, String orderBy) {
