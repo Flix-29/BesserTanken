@@ -1,9 +1,10 @@
 package de.flix29.besserTanken;
 
+import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.*;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -15,10 +16,16 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import de.flix29.besserTanken.kraftstoffbilliger.KraftstoffbilligerRequests;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStation;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelType;
+import de.flix29.besserTanken.model.openDataSoft.Location;
 import jakarta.annotation.security.PermitAll;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,18 +38,36 @@ public class BesserTankenView extends VerticalLayout {
     private final Logger LOGGER = LoggerFactory.getLogger(BesserTankenView.class);
     private final KraftstoffbilligerRequests kraftstoffbilligerRequests = new KraftstoffbilligerRequests();
 
+    private final Select<String> useCurrentLocationSelect;
+
     private List<FuelStation> fuelStations;
+    private boolean useCurrentLocation;
+    private Location currentLocation;
 
     public BesserTankenView() {
+        var radiusField = new TextField("Enter radius (km): ", "5", "5");
+        var placeField = new TextField("Place or plz: ", "'Berlin' or '10178'");
+
+        useCurrentLocationSelect = new Select<>(event -> {
+            useCurrentLocation = event.getValue().equals("Use location");
+            placeField.setValue("");
+            placeField.setVisible(!useCurrentLocation);
+            if(useCurrentLocation) {
+                getCurrentLocation();
+            } else {
+                currentLocation = null;
+            }
+        });
+        useCurrentLocationSelect.setItems("Use location", "Use plz/place");
+        useCurrentLocationSelect.setLabel("Select search type: ");
+        useCurrentLocationSelect.setValue("Use plz/place");
+
         Select<String> fuelTypeSelect = new Select<>();
         fuelTypeSelect.setItems(Arrays.stream(FuelType.values())
                 .map(FuelType::getName)
                 .toArray(String[]::new));
         fuelTypeSelect.setLabel("Select fuel type: ");
         fuelTypeSelect.setValue(FuelType.DIESEL.getName());
-
-        var radiusField = new TextField("Enter radius (km): ", "5", "5");
-        var placeField = new TextField("Place or plz: ", "'Berlin' or '10178'");
 
         Select<String> orderBySelect = new Select<>(event ->
                 displayFuelStations(
@@ -55,6 +80,7 @@ public class BesserTankenView extends VerticalLayout {
 
         var searchButton = new Button("Search",
                 event -> performSearch(
+                        useCurrentLocation ? currentLocation : null,
                         placeField.getValue(),
                         FuelType.fromName(fuelTypeSelect.getValue()),
                         radiusField.getValue().isEmpty() ? null : Integer.parseInt(radiusField.getValue()),
@@ -68,6 +94,7 @@ public class BesserTankenView extends VerticalLayout {
         orderByLayout.setJustifyContentMode(JustifyContentMode.END);
 
         var horizontalLayout = new HorizontalLayout(
+                useCurrentLocationSelect,
                 placeField,
                 fuelTypeSelect,
                 radiusField,
@@ -84,8 +111,36 @@ public class BesserTankenView extends VerticalLayout {
         );
     }
 
-    private void performSearch(String place, FuelType fuelType, Integer radius, String orderBy) {
-        if (!place.isEmpty()) {
+    private void getCurrentLocation() {
+        LOGGER.info("Trying to get current location.");
+        try {
+            String javascript = Files.readString(Path.of("src/main/javascript/Geolocator.js"));
+            UI.getCurrent().getPage().executeJs(javascript, this);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @ClientCallable
+    private void receiveCoords(Double[] coords) {
+        if (coords == null || coords.length != 2) {
+            LOGGER.warn("Received invalid coordinates.");
+            currentLocation = null;
+            useCurrentLocation = false;
+            useCurrentLocationSelect.setValue("Use plz/place");
+            return;
+        }
+
+        currentLocation = new Location();
+        currentLocation.setCoords(Pair.of(coords[0], coords[1]));
+    }
+
+    private void performSearch(Location location, String place, FuelType fuelType, Integer radius, String orderBy) {
+        fuelStations = new ArrayList<>();
+        if(location != null && location.getCoords() != null) {
+            LOGGER.info("Searching location: {} with fuel type: {} and radius: {}.", location, fuelType, radius);
+            fuelStations = kraftstoffbilligerRequests.getFuelStationsByLocation(List.of(location), fuelType, radius);
+        } else if (!place.isEmpty()) {
             try {
                 var plz = Integer.parseInt(place);
                 LOGGER.info("Searching plz: {} with fuel type: {} and radius: {}.", plz, fuelType, radius);
@@ -94,11 +149,11 @@ public class BesserTankenView extends VerticalLayout {
                 LOGGER.info("Searching place: {} with fuel type: {} and radius: {}.", place, fuelType, radius);
                 fuelStations = kraftstoffbilligerRequests.getFuelStationsByPlace(place, fuelType, radius);
             }
-            LOGGER.info("Found {} fuel stations.", fuelStations.size());
-            displayFuelStations(orderBy);
         } else {
-            LOGGER.warn("Please fill in a place or plz.");
+            LOGGER.warn("Please fill in a place or plz or agree to use your location.");
         }
+        LOGGER.info("Found {} fuel stations.", fuelStations.size());
+        displayFuelStations(orderBy);
     }
 
     private void displayFuelStations(String orderBy) {
@@ -149,8 +204,8 @@ public class BesserTankenView extends VerticalLayout {
                         layoutPriceDistance.setWidth("min-content");
                         layoutPriceDistance.setJustifyContentMode(JustifyContentMode.CENTER);
                         layoutPriceDistance.setAlignItems(Alignment.CENTER);
-                        layoutPriceDistance.setAlignSelf(FlexComponent.Alignment.END, price);
-                        layoutPriceDistance.setAlignSelf(FlexComponent.Alignment.CENTER, distance);
+                        layoutPriceDistance.setAlignSelf(Alignment.END, price);
+                        layoutPriceDistance.setAlignSelf(Alignment.CENTER, distance);
 
                         var layoutRow = new HorizontalLayout(layoutNameAddress, layoutPriceDistance);
                         layoutRow.addClassName("temp");
