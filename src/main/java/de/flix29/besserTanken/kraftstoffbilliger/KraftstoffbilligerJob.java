@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import de.flix29.BesserTanken;
 import de.flix29.besserTanken.deserializer.*;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStation;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStationDetail;
@@ -25,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//import static de.flix29.besserTanken.Constants.API_KEY;
 import static de.flix29.besserTanken.deserializer.CustomModelTypes.*;
 import static de.flix29.besserTanken.model.kraftstoffbilliger.requests.Endpoints.*;
 import static de.flix29.besserTanken.model.kraftstoffbilliger.requests.HTTPMethod.GET;
@@ -52,9 +52,10 @@ public class KraftstoffbilligerJob {
     }
 
     private HttpResponse<String> sendHttpRequestWithResponse(Endpoints endpoint, HTTPMethod httpMethod, Map<String, String> parameter) throws IOException, InterruptedException {
+        var apiKey = System.getenv().getOrDefault("API_KEY", BesserTanken.getEnv().getProperty("bessertanken.apikey"));
         var requestBuilder = HttpRequest.newBuilder()
                 .uri(URI.create(endpoint.getUrl()))
-                .header("apikey", System.getenv("API_KEY"));
+                .header("apikey", apiKey);
 
         if (httpMethod == GET) {
             requestBuilder.GET();

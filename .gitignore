@@ -16,4 +16,4 @@ pnpmfile.js
 vite.generated.ts
 
 # Secrets
-src/main/java/de/flix29/besserTanken/Constants.java
+src/main/resources/secrets.properties
