@@ -28,25 +28,22 @@ public class OpenDataSoftRequests {
     private final String BASE_QUERY = "select=name,plz_name,geo_point_2d&offset=$offset$";
     private final String PLZ_QUERY = "&where=name=%22$plz$%22";
     private final String PLZ_NAME_QUERY = "&where=plz_name=%22$plz_name$%22";
+
     private final Logger LOGGER = LoggerFactory.getLogger(OpenDataSoftRequests.class);
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(Location.class, new CustomLocationDeserializer())
             .setPrettyPrinting()
             .create();
 
-    public List<Location> getCoordsFromPlzsAndPlzName(int plz) throws IOException, InterruptedException {
-        return getCoordsFromPlzsAndPlzName(plz, null, 0);
+    public List<Location> getCoordsFromPlz(int plz) {
+        return getCoordsFromPlzAndPlzName(plz, null, 0);
     }
 
-    public List<Location> getCoordsFromPlzsAndPlzName(String plz_name) throws IOException, InterruptedException {
-        return getCoordsFromPlzsAndPlzName(0, plz_name, 0);
+    public List<Location> getCoordsFromPlzName(String plz_name) {
+        return getCoordsFromPlzAndPlzName(0, plz_name, 0);
     }
 
-    public List<Location> getCoordsFromPlzsAndPlzName(int plz, String plz_name) throws IOException, InterruptedException {
-        return getCoordsFromPlzsAndPlzName(plz, plz_name, 0);
-    }
-
-    public List<Location> getCoordsFromPlzsAndPlzName(int plz, String plz_name, int offset) throws IOException, InterruptedException {
+    public List<Location> getCoordsFromPlzAndPlzName(int plz, String plz_name, int offset) {
         var locationFromJson = getLocationFromJson(plz, plz_name);
         if(!locationFromJson.isEmpty()) {
             LOGGER.info("Found {} results for plz: {} and plz_name: {}", locationFromJson.size(), plz, plz_name);
@@ -58,7 +55,12 @@ public class OpenDataSoftRequests {
         var requestBuilder = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + url));
 
-        var response = HttpClient.newHttpClient().send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response;
+        try {
+            response = HttpClient.newHttpClient().send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         var jsonObject = gson.fromJson(response.body(), JsonObject.class);
         var count = jsonObject.get("total_count").getAsInt();
@@ -67,7 +69,7 @@ public class OpenDataSoftRequests {
         List<Location> result = gson.fromJson(jsonArray, LOCATION_TYPE);
 
         if(count > 100) {
-            result.addAll(getCoordsFromPlzsAndPlzName(plz, plz_name, ++offset));
+            result.addAll(getCoordsFromPlzAndPlzName(plz, plz_name, ++offset));
         }
 
         LOGGER.info("Found {} results for plz: {} and plz_name: {}", result.size(), plz, plz_name);
@@ -88,7 +90,7 @@ public class OpenDataSoftRequests {
         }
     }
 
-    public String buildUrl(int plz, String plz_name, int offset) {
+    private String buildUrl(int plz, String plz_name, int offset) {
         StringBuilder queryString = new StringBuilder(BASE_QUERY.replace("$offset$", String.valueOf(offset)));
 
         if(plz != 0) {

@@ -8,10 +8,10 @@ import lombok.Getter;
 public enum Endpoints {
 
     BASIC_ENDPOINT("https://api.kraftstoffbilliger.de/v2", "basic"),
-    SEARCH_ENDPOINT(BASIC_ENDPOINT.url + "/search", "search"),
-    ROUTING_ENDPOINT(BASIC_ENDPOINT.url + "/routing", "routing"),
-    DETAILS_ENDPOINT(BASIC_ENDPOINT.url + "/details", "details"),
-    TYPES_ENDPOINT(BASIC_ENDPOINT.url + "/types", "types");
+    SEARCH_ENDPOINT(BASIC_ENDPOINT.getUrl() + "/search", "search"),
+    ROUTING_ENDPOINT(BASIC_ENDPOINT.getUrl() + "/routing", "routing"),
+    DETAILS_ENDPOINT(BASIC_ENDPOINT.getUrl() + "/details", "details"),
+    TYPES_ENDPOINT(BASIC_ENDPOINT.getUrl() + "/types", "types");
 
     private final String url;
     private final String endpoint;

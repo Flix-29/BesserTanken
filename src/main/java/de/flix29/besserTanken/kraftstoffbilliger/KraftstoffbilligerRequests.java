@@ -23,23 +23,13 @@ public class KraftstoffbilligerRequests {
     }
 
     public List<FuelStation> getFuelStationsByPlace(String place, FuelType fuelType, Integer radius) {
-        var cords = getCords(place, 0);
+        var cords = openDataSoftRequests.getCoordsFromPlzName(place);
         return getFuelStationsByLocation(cords, fuelType, radius);
     }
 
     public List<FuelStation> getFuelStationsByPlz(int plz, FuelType fuelType, Integer radius) {
-        var cords = getCords(null, plz);
+        var cords = openDataSoftRequests.getCoordsFromPlz(plz);
         return getFuelStationsByLocation(cords, fuelType, radius);
-    }
-
-    private List<Location> getCords(String place, int plz) {
-        List<Location> coordsFromPlzAndPlace;
-        try {
-            coordsFromPlzAndPlace = openDataSoftRequests.getCoordsFromPlzsAndPlzName(plz, place);
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        return coordsFromPlzAndPlace;
     }
 
     public List<FuelStation> getFuelStationsByLocation(List<Location> locations, FuelType fuelType, Integer radius) {

@@ -45,6 +45,7 @@ public class BesserTankenView extends VerticalLayout {
     private Location currentLocation;
 
     public BesserTankenView() {
+        //TODO: refactor
         var radiusField = new TextField("Enter radius (km): ", "5", "5");
         var placeField = new TextField("Place or plz: ", "'Berlin' or '10178'");
 
