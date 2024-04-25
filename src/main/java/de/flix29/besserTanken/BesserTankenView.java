@@ -224,7 +224,7 @@ public class BesserTankenView extends VerticalLayout {
                         add(layoutRow);
                     });
         } else {
-            var h2 = new H2("No fuel stations found.");
+            var h2 = new H2("No fuel stations found for your input.");
             h2.addClassName("temp");
             add(h2);
         }
