@@ -11,7 +11,6 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import de.flix29.besserTanken.kraftstoffbilliger.KraftstoffbilligerRequests;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStation;
@@ -30,8 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @PageTitle("BesserTanken")
-@Route(value = "besserTanken")
-@RouteAlias(value = "")
+@Route(value = "")
 @PermitAll
 public class BesserTankenView extends VerticalLayout {
 
@@ -45,7 +43,6 @@ public class BesserTankenView extends VerticalLayout {
     private Location currentLocation;
 
     public BesserTankenView() {
-        //TODO: refactor
         var radiusField = new TextField("Enter radius (km): ", "5", "5");
         var placeField = new TextField("Place or plz: ", "'Berlin' or '10178'");
 
