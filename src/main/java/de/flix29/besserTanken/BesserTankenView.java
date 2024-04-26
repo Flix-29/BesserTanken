@@ -36,15 +36,20 @@ public class BesserTankenView extends VerticalLayout {
     private final Logger LOGGER = LoggerFactory.getLogger(BesserTankenView.class);
     private final KraftstoffbilligerRequests kraftstoffbilligerRequests = new KraftstoffbilligerRequests();
 
-    private final Select<String> useCurrentLocationSelect;
+    protected final TextField radiusField;
+    protected final TextField placeField;
+    protected final Select<String> useCurrentLocationSelect;
+    protected final Select<String> fuelTypeSelect;
+    protected final Select<String> orderBySelect;
+    protected final Button searchButton;
 
     private List<FuelStation> fuelStations;
     private boolean useCurrentLocation;
     private Location currentLocation;
 
     public BesserTankenView() {
-        var radiusField = new TextField("Enter radius (km): ", "5", "5");
-        var placeField = new TextField("Place or plz: ", "'Berlin' or '10178'");
+        radiusField = new TextField("Enter radius (km): ", "5", "5");
+        placeField = new TextField("Place or plz: ", "'Berlin' or '10178'");
 
         useCurrentLocationSelect = new Select<>(event -> {
             useCurrentLocation = event.getValue().equals("Use location");
@@ -60,14 +65,14 @@ public class BesserTankenView extends VerticalLayout {
         useCurrentLocationSelect.setLabel("Select search type: ");
         useCurrentLocationSelect.setValue("Use plz/place");
 
-        Select<String> fuelTypeSelect = new Select<>();
+        fuelTypeSelect = new Select<>();
         fuelTypeSelect.setItems(Arrays.stream(FuelType.values())
                 .map(FuelType::getName)
                 .toArray(String[]::new));
         fuelTypeSelect.setLabel("Select fuel type: ");
         fuelTypeSelect.setValue(FuelType.DIESEL.getName());
 
-        Select<String> orderBySelect = new Select<>(event ->
+        orderBySelect = new Select<>(event ->
                 displayFuelStations(
                         event.getValue()
                 )
@@ -76,7 +81,7 @@ public class BesserTankenView extends VerticalLayout {
         orderBySelect.setLabel("Order by: ");
         orderBySelect.setValue("Price");
 
-        var searchButton = new Button("Search",
+        searchButton = new Button("Search",
                 event -> performSearch(
                         useCurrentLocation ? currentLocation : null,
                         placeField.getValue(),
