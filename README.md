@@ -3,7 +3,7 @@
 ## Get the cheapest gas prices in your area.
 
 This app uses the data from the [Kraftstoffbilliger-Api](https://kraftstoffbilliger.de/mts-k_api) to get the cheapest 
-gas prices. To convert the plz and places to coordinates the app uses the 
+gas prices. To convert the german postal code and places to coordinates the app uses the 
 [OpenDataSoft-Api](https://public.opendatasoft.com/explore/dataset/georef-germany-postleitzahl/table/).
 
 ![image](src/main/resources/preview.png)
@@ -11,8 +11,7 @@ gas prices. To convert the plz and places to coordinates the app uses the
 ## How to start the application locally:
 
 ### Precondition:
-
-1. You need to be able to run java code.
+1. You need to be able to run java code on your device.
 2. You need to have a working internet connection.
 3. You need an active Api-Key from [Kraftstoffbilliger](https://kraftstoffbilliger.de/mts-k_api)
 
