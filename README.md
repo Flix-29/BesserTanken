@@ -2,7 +2,7 @@
 
 ## Get the cheapest gas prices in your area.
 
-This app uses the data from the Api [Kraftstoffbilliger](https://kraftstoffbilliger.de/mts-k_api) to get the cheapest 
+This app uses the data from the [Kraftstoffbilliger-Api](https://kraftstoffbilliger.de/mts-k_api) to get the cheapest 
 gas prices. To convert the plz and places to coordinates the app uses the 
 [OpenDataSoft-Api](https://public.opendatasoft.com/explore/dataset/georef-germany-postleitzahl/table/).
 
