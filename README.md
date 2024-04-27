@@ -13,7 +13,7 @@ gas prices. To convert the german postal code and places to coordinates the app 
 ### Precondition:
 1. You need to be able to run java code on your device.
 2. You need to have a working internet connection.
-3. You need an active Api-Key from [Kraftstoffbilliger](https://kraftstoffbilliger.de/mts-k_api)
+3. You need an active Api-Key from [Kraftstoffbilliger](https://kraftstoffbilliger.de/mts-k_api).
 
 ### Steps:
 1. Clone the repository.
