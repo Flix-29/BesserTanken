@@ -5,16 +5,27 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.testbench.unit.UIUnitTest;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelType;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class BesserTankenViewTest extends UIUnitTest {
 
+    private BesserTankenView besserTankenView;
+
+    @BeforeEach
+    void setUp() {
+        besserTankenView = navigate(BesserTankenView.class);
+    }
+
     @Test
     void initialSetup_success() {
-        final BesserTankenView besserTankenView = navigate(BesserTankenView.class);
-
         assertThat(besserTankenView)
                 .isNotNull()
                 .hasFieldOrProperty("radiusField")
@@ -83,6 +94,35 @@ class BesserTankenViewTest extends UIUnitTest {
                 .isInstanceOf(Button.class)
                 .extracting(Button::getText)
                 .isEqualTo("Search");
+    }
+
+    static Stream<Arguments> changeSearchType_success() {
+        return Stream.of(
+                Arguments.of("Use plz/place", "Use plz/place", "", true, ""),
+                Arguments.of("Use plz/place", "Use location", "", false, ""),
+                Arguments.of("Use plz/place", "Use plz/place", "Berlin", true, "Berlin"),
+                Arguments.of("Use plz/place", "Use location", "Berlin", false, ""),
+                Arguments.of("Use location", "Use plz/place", "", true, ""),
+                Arguments.of("Use location", "Use location", "", false, ""),
+                Arguments.of("Use location", "Use plz/place", "Berlin", true, ""),
+                Arguments.of("Use location", "Use location", "Berlin", false, "Berlin")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void changeSearchType_success(String initialSearchType, String newSearchType, String place, boolean expectedPlaceFieldVisibility, String expectedPlaceValue) {
+        besserTankenView.useCurrentLocationSelect.setValue(initialSearchType);
+        besserTankenView.placeField.setValue(place);
+        besserTankenView.useCurrentLocationSelect.setValue(newSearchType);
+
+        assertThat(besserTankenView.placeField)
+                .satisfies(field -> {
+                    assertThat(field.getValue())
+                            .isEqualTo(expectedPlaceValue);
+                    assertThat(field.isVisible())
+                            .isEqualTo(expectedPlaceFieldVisibility);
+                });
     }
 
 }
