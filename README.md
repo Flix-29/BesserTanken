@@ -23,4 +23,4 @@ gas prices. To convert the german postal code and places to coordinates the app 
    2. Or create a new file in the `resources` directory and name it `secret.properties`. In this file, 
    add the following line: `api.key=your-api-key`.
 4. Start the application using the `main method` in the `Main` class.
-5. By default, a browser window will open. If not, open your browser and navigate to `http://localhost:8080/`.
+5. By default, a browser window will open. If not, open your browser and navigate to `localhost:8080`.
