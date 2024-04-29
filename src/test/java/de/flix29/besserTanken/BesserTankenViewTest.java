@@ -4,20 +4,29 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.testbench.unit.UIUnitTest;
+import de.flix29.besserTanken.kraftstoffbilliger.KraftstoffbilligerRequests;
+import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStation;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelType;
+import de.flix29.besserTanken.model.openDataSoft.Location;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 class BesserTankenViewTest extends UIUnitTest {
 
     private BesserTankenView besserTankenView;
+    @MockBean
+    private KraftstoffbilligerRequests kraftstoffbilligerRequests;
 
     @BeforeEach
     void setUp() {
@@ -123,6 +132,32 @@ class BesserTankenViewTest extends UIUnitTest {
                     assertThat(field.isVisible())
                             .isEqualTo(expectedPlaceFieldVisibility);
                 });
+    }
+
+    static Stream<Arguments> searchButtonClicked_success() {
+        return Stream.of(
+                Arguments.of("Use plz/place", any(Location.class), "Berlin", 10178, FuelType.DIESEL, 5, List.of()),
+                Arguments.of("Use location", any(Location.class), "", 10178, FuelType.DIESEL, 5, List.of())
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void searchButtonClicked_success(String searchType, Location location, String place, int plz, FuelType fuelType, int radius, List<FuelStation> fuelStations) {
+        besserTankenView.useCurrentLocationSelect.setValue(searchType);
+        besserTankenView.currentLocation = location;
+        besserTankenView.placeField.setValue(place == null ? String.valueOf(plz) : place);
+        besserTankenView.fuelTypeSelect.setValue(fuelType.getName());
+        besserTankenView.radiusField.setValue(String.valueOf(radius));
+
+        //TODO: Mock the environment to test the search button click
+        besserTankenView.searchButton.click();
+
+        when(kraftstoffbilligerRequests.getFuelStationsByPlz(any(), any(), any())).thenReturn(fuelStations);
+        when(kraftstoffbilligerRequests.getFuelStationsByPlace(any(), any(), any())).thenReturn(fuelStations);
+        when(kraftstoffbilligerRequests.getFuelStationsByLocation(any(), any(), any())).thenReturn(fuelStations);
+
+
     }
 
 }

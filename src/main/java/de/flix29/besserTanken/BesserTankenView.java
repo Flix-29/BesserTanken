@@ -45,7 +45,7 @@ public class BesserTankenView extends VerticalLayout {
 
     private List<FuelStation> fuelStations;
     private boolean useCurrentLocation;
-    private Location currentLocation;
+    protected Location currentLocation;
 
     public BesserTankenView() {
         radiusField = new TextField("Enter radius (km): ", "5", "5");
