@@ -19,8 +19,8 @@ gas prices. To convert the german postal code and places to coordinates the app 
 1. Clone the repository.
 2. Open the project in your favorite IDE.
 3. In the `application.properties` file enter your Api-Key:
-   1. Either replace the value `your-api-key` with your own key
-   2. Or create a new file in the `resources` directory and name it `secret.properties`. In this file, 
+   - Either replace the value `your-api-key` with your own key
+   - Or create a new file in the `resources` directory and name it `secret.properties`. In this file, 
    add the following line: `api.key=your-api-key`.
 4. Start the application using the `main method` in the `Main` class or by running ```mvn``` in the command line.
 5. By default, a browser window will open. If not, open your browser and navigate to `localhost:8080`.
