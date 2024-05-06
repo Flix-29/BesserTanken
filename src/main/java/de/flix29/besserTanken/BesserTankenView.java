@@ -36,20 +36,16 @@ public class BesserTankenView extends VerticalLayout {
     private final Logger LOGGER = LoggerFactory.getLogger(BesserTankenView.class);
     private final KraftstoffbilligerRequests kraftstoffbilligerRequests = new KraftstoffbilligerRequests();
 
-    protected final TextField radiusField;
-    protected final TextField placeField;
-    protected final Select<String> useCurrentLocationSelect;
-    protected final Select<String> fuelTypeSelect;
-    protected final Select<String> orderBySelect;
-    protected final Button searchButton;
+    private final Select<String> useCurrentLocationSelect;
 
     private List<FuelStation> fuelStations;
+    private Select<String> orderBySelect;
     private boolean useCurrentLocation;
-    protected Location currentLocation;
+    private Location currentLocation;
 
     public BesserTankenView() {
-        radiusField = new TextField("Enter radius (km): ", "5", "5");
-        placeField = new TextField("Place or plz: ", "'Berlin' or '10178'");
+        var radiusField = new TextField("Enter radius (km): ", "5", "5");
+        var placeField = new TextField("Place or plz: ", "'Berlin' or '10178'");
 
         useCurrentLocationSelect = new Select<>(event -> {
             useCurrentLocation = event.getValue().equals("Use location");
@@ -65,7 +61,7 @@ public class BesserTankenView extends VerticalLayout {
         useCurrentLocationSelect.setLabel("Select search type: ");
         useCurrentLocationSelect.setValue("Use plz/place");
 
-        fuelTypeSelect = new Select<>();
+        Select<String> fuelTypeSelect = new Select<>();
         fuelTypeSelect.setItems(Arrays.stream(FuelType.values())
                 .map(FuelType::getName)
                 .toArray(String[]::new));
@@ -79,16 +75,15 @@ public class BesserTankenView extends VerticalLayout {
         orderBySelect.setLabel("Order by: ");
         orderBySelect.setValue("Price");
 
-        searchButton = new Button("Search", event -> {
-                    fuelStations = performSearch(
-                            useCurrentLocation ? currentLocation : null,
-                            placeField.getValue(),
-                            FuelType.fromName(fuelTypeSelect.getValue()),
-                            radiusField.getValue().isEmpty() ? null : Integer.parseInt(radiusField.getValue())
-                    );
-                    displayFuelStations();
-                }
-        );
+        var searchButton = new Button("Search", event -> {
+            fuelStations = performSearch(
+                    useCurrentLocation ? currentLocation : null,
+                    placeField.getValue(),
+                    FuelType.fromName(fuelTypeSelect.getValue()),
+                    radiusField.getValue().isEmpty() ? null : Integer.parseInt(radiusField.getValue())
+            );
+            displayFuelStations();
+        });
         searchButton.addClickShortcut(Key.ENTER);
 
         HorizontalLayout orderByLayout = new HorizontalLayout(orderBySelect);
