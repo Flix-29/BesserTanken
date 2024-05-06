@@ -39,6 +39,7 @@ public class BesserTankenView extends VerticalLayout {
     private final Select<String> useCurrentLocationSelect;
 
     private List<FuelStation> fuelStations;
+    private Select<String> orderBySelect;
     private boolean useCurrentLocation;
     private Location currentLocation;
 
@@ -50,7 +51,7 @@ public class BesserTankenView extends VerticalLayout {
             useCurrentLocation = event.getValue().equals("Use location");
             placeField.setValue("");
             placeField.setVisible(!useCurrentLocation);
-            if(useCurrentLocation) {
+            if (useCurrentLocation) {
                 getCurrentLocation();
             } else {
                 currentLocation = null;
@@ -67,24 +68,22 @@ public class BesserTankenView extends VerticalLayout {
         fuelTypeSelect.setLabel("Select fuel type: ");
         fuelTypeSelect.setValue(FuelType.DIESEL.getName());
 
-        Select<String> orderBySelect = new Select<>(event ->
-                displayFuelStations(
-                        event.getValue()
-                )
+        orderBySelect = new Select<>(event ->
+                displayFuelStations()
         );
         orderBySelect.setItems("Price", "Distance");
         orderBySelect.setLabel("Order by: ");
         orderBySelect.setValue("Price");
 
-        var searchButton = new Button("Search",
-                event -> performSearch(
-                        useCurrentLocation ? currentLocation : null,
-                        placeField.getValue(),
-                        FuelType.fromName(fuelTypeSelect.getValue()),
-                        radiusField.getValue().isEmpty() ? null : Integer.parseInt(radiusField.getValue()),
-                        orderBySelect.getValue()
-                )
-        );
+        var searchButton = new Button("Search", event -> {
+            fuelStations = performSearch(
+                    useCurrentLocation ? currentLocation : null,
+                    placeField.getValue(),
+                    FuelType.fromName(fuelTypeSelect.getValue()),
+                    radiusField.getValue().isEmpty() ? null : Integer.parseInt(radiusField.getValue())
+            );
+            displayFuelStations();
+        });
         searchButton.addClickShortcut(Key.ENTER);
 
         HorizontalLayout orderByLayout = new HorizontalLayout(orderBySelect);
@@ -120,6 +119,7 @@ public class BesserTankenView extends VerticalLayout {
     }
 
     @ClientCallable
+    @SuppressWarnings("unused")
     private void receiveCoords(Double[] coords) {
         if (coords == null || coords.length != 2) {
             LOGGER.warn("Received invalid coordinates.");
@@ -133,9 +133,9 @@ public class BesserTankenView extends VerticalLayout {
         currentLocation.setCoords(Pair.of(coords[0], coords[1]));
     }
 
-    private void performSearch(Location location, String place, FuelType fuelType, Integer radius, String orderBy) {
+    private List<FuelStation> performSearch(Location location, String place, FuelType fuelType, Integer radius) {
         fuelStations = new ArrayList<>();
-        if(location != null && location.getCoords() != null) {
+        if (location != null && location.getCoords() != null) {
             LOGGER.info("Searching location: {} with fuel type: {} and radius: {}.", location, fuelType, radius);
             fuelStations = kraftstoffbilligerRequests.getFuelStationsByLocation(List.of(location), fuelType, radius);
         } else if (!place.isEmpty()) {
@@ -151,10 +151,11 @@ public class BesserTankenView extends VerticalLayout {
             LOGGER.warn("Please fill in a place or plz or agree to use your location.");
         }
         LOGGER.info("Found {} fuel stations.", fuelStations.size());
-        displayFuelStations(orderBy);
+
+        return fuelStations;
     }
 
-    private void displayFuelStations(String orderBy) {
+    private void displayFuelStations() {
         getChildren()
                 .filter(child -> child.hasClassName("temp"))
                 .forEach(this::remove);
@@ -165,7 +166,7 @@ public class BesserTankenView extends VerticalLayout {
             fuelStations.stream()
                     .filter(fuelStation -> fuelStation.getPrice() != 0.0)
                     .sorted((fuelStation1, fuelStation2) -> {
-                        if (orderBy.equals("Distance")) {
+                        if (orderBySelect.getValue().equals("Distance")) {
                             return fuelStation1.getDistance().compareTo(fuelStation2.getDistance());
                         } else {
                             return Double.compare(fuelStation1.getPrice(), fuelStation2.getPrice());
