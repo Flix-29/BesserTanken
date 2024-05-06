@@ -124,6 +124,7 @@ public class BesserTankenView extends VerticalLayout {
     }
 
     @ClientCallable
+    @SuppressWarnings("unused")
     private void receiveCoords(Double[] coords) {
         if (coords == null || coords.length != 2) {
             LOGGER.warn("Received invalid coordinates.");
