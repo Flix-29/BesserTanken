@@ -3,8 +3,8 @@ updates:
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
-      interval: "weekly"
-      time: "03:00"
+      interval: "daily"
+      time: "18:10"
       timezone: "Europe/Berlin"
     commit-message:
       prefix: "maven dependency"
@@ -15,7 +15,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-      time: "03:00"
+      time: "18:10"
       timezone: "Europe/Berlin"
     commit-message:
       prefix: "npm dependency"
