@@ -5,7 +5,7 @@
   "dependencies": {
     "@polymer/polymer": "3.5.1",
     "@vaadin/a11y-base": "24.3.11",
-    "@vaadin/accordion": "24.3.11",
+    "@vaadin/accordion": "24.3.12",
     "@vaadin/app-layout": "24.3.11",
     "@vaadin/avatar": "24.3.11",
     "@vaadin/avatar-group": "24.3.12",
@@ -101,7 +101,7 @@
     "dependencies": {
       "@polymer/polymer": "3.5.1",
       "@vaadin/a11y-base": "24.3.11",
-      "@vaadin/accordion": "24.3.11",
+      "@vaadin/accordion": "24.3.12",
       "@vaadin/app-layout": "24.3.11",
       "@vaadin/avatar": "24.3.11",
       "@vaadin/avatar-group": "24.3.12",
