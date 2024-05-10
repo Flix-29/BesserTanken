@@ -95,7 +95,7 @@
     "vite-plugin-checker": "^0.6.4",
     "workbox-build": "7.0.0",
     "workbox-core": "7.0.0",
-    "workbox-precaching": "7.0.0"
+    "workbox-precaching": "7.1.0"
   },
   "vaadin": {
     "dependencies": {
@@ -191,7 +191,7 @@
       "vite-plugin-checker": "0.6.4",
       "workbox-build": "7.0.0",
       "workbox-core": "7.0.0",
-      "workbox-precaching": "7.0.0"
+      "workbox-precaching": "7.1.0"
     },
     "hash": "bd1cf8ecb928714b3dc7d1ee6d69402fc612c4067c5646d639e636ff3ec08887"
   },
