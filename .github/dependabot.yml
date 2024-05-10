@@ -6,6 +6,7 @@ updates:
       interval: "daily"
       time: "03:00"
       timezone: "Europe/Berlin"
+    target-branch: "dev"
     commit-message:
       prefix: "maven dependency"
     labels:
@@ -17,6 +18,7 @@ updates:
       interval: "daily"
       time: "03:00"
       timezone: "Europe/Berlin"
+    target-branch: "dev"
     commit-message:
       prefix: "npm dependency"
     labels:
