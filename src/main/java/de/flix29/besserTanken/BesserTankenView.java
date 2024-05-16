@@ -3,6 +3,7 @@ package de.flix29.besserTanken;
 import com.flowingcode.vaadin.addons.fontawesome.FontAwesome;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.dom.Style.Position;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.map.Map;
 import com.vaadin.flow.component.map.configuration.Coordinate;
@@ -49,8 +50,8 @@ public class BesserTankenView extends VerticalLayout {
 
 
     private final VerticalLayout fuelStationsLayout = new VerticalLayout();
-    private final Map map = new Map();
 
+    private Map map;
     private final Select<String> useCurrentLocationSelect;
     private final Select<String> orderBySelect;
     private final Select<String> resultLimitSelect;
@@ -192,9 +193,7 @@ public class BesserTankenView extends VerticalLayout {
     }
 
     private void displayFuelStations() {
-        getChildren()
-                .filter(child -> child.hasClassName("temp"))
-                .forEach(this::remove);
+        removeComponentByClassName("temp");
 
         if (foundFuelStations == null) return;
 
@@ -274,13 +273,49 @@ public class BesserTankenView extends VerticalLayout {
     }
 
     private Map renderMap() {
-        map.setHeight("800px");
+        map = new Map();
+
+        map.addFeatureClickListener(event -> {
+            var marker = (MarkerFeature) event.getFeature();
+            var coordinates = marker.getCoordinates();
+            var fuelStation = displayedFuelStations.stream()
+                    .filter(fuelStationsItem -> fuelStationsItem.getDetails().getLat() == coordinates.getY() && fuelStationsItem.getDetails().getLon() == coordinates.getX())
+                    .findFirst();
+
+            removeComponentByClassName("tooltip");
+            Div tooltip = new Div();
+            tooltip.addClassName("tooltip");
+
+            fuelStation.ifPresent(fuelStationItem -> {
+                FuelStationDetail details = fuelStationItem.getDetails();
+
+                tooltip.getStyle().setPosition(Position.ABSOLUTE);
+                tooltip.getStyle().setBackgroundColor("var(--lumo-base-color)");
+                tooltip.getStyle().setBorder("2px solid black");
+                tooltip.getStyle().setBorderRadius("10px");
+                tooltip.getStyle().setPadding("5px");
+
+                tooltip.add(new H3(fuelStationItem.getName()));
+                tooltip.add(new Paragraph(details.getAddress() + ", " + details.getCity()));
+                tooltip.add(new Paragraph("Price: " + fuelStationItem.getPrice() + "€"));
+                tooltip.add(new Paragraph("Distance: " + fuelStationItem.getDistance() + " km"));
+
+                double x = event.getMouseDetails().getAbsoluteX();
+                double y = event.getMouseDetails().getAbsoluteY();
+                tooltip.getStyle().set("left", x + "px");
+                tooltip.getStyle().set("top", y + "px");
+            });
+
+            add(tooltip);
+        });
         map.setZoom(13);
         map.setCenter(new Coordinate(13.4, 52.5));
 
-        if(displayedFuelStations == null) {
+        if (displayedFuelStations == null) {
             return map;
         }
+
+        map.addClickEventListener(event -> removeComponentByClassName("tooltip"));
 
         displayedFuelStations.forEach(fuelStation -> {
             try {
@@ -297,6 +332,12 @@ public class BesserTankenView extends VerticalLayout {
         });
 
         return map;
+    }
+
+    private void removeComponentByClassName(String className) {
+        getChildren()
+                .filter(child -> child.hasClassName(className))
+                .forEach(this::remove);
     }
 
     private static class LazyComponent extends Div {
