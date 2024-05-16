@@ -18,8 +18,6 @@ public class CustomFuelStationDeserializer extends CustomDeserializerUtils imple
         fuelStation.setAddress(getAsStringOrNull(jsonObject, "address"));
         fuelStation.setCity(getAsStringOrNull(jsonObject, "city"));
         fuelStation.setDistance(BigDecimal.valueOf(getAsDoubleOrDefault(jsonObject, "distance")).setScale(2, RoundingMode.HALF_UP));
-        fuelStation.setLat(getAsStringOrNull(jsonObject, "lat"));
-        fuelStation.setLon(getAsStringOrNull(jsonObject, "lon"));
         fuelStation.setPrice(getAsDoubleOrDefault(jsonObject, "price"));
         return fuelStation;
     }

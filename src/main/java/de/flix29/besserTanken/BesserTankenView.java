@@ -1,20 +1,29 @@
 package de.flix29.besserTanken;
 
-import com.vaadin.flow.component.ClientCallable;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.UI;
+import com.flowingcode.vaadin.addons.fontawesome.FontAwesome;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.map.Map;
+import com.vaadin.flow.component.map.configuration.Coordinate;
+import com.vaadin.flow.component.map.configuration.feature.MarkerFeature;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.TabSheet;
+import com.vaadin.flow.component.tabs.TabSheetVariant;
+import com.vaadin.flow.component.tabs.TabVariant;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import de.flix29.besserTanken.kraftstoffbilliger.KraftstoffbilligerJob;
 import de.flix29.besserTanken.kraftstoffbilliger.KraftstoffbilligerRequests;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStation;
+import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStationDetail;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelType;
 import de.flix29.besserTanken.model.openDataSoft.Location;
 import jakarta.annotation.security.PermitAll;
@@ -36,14 +45,20 @@ public class BesserTankenView extends VerticalLayout {
 
     private final Logger LOGGER = LoggerFactory.getLogger(BesserTankenView.class);
     private final KraftstoffbilligerRequests kraftstoffbilligerRequests = new KraftstoffbilligerRequests();
+    private final KraftstoffbilligerJob kraftstoffbilligerJob = new KraftstoffbilligerJob();
 
     private final Select<String> useCurrentLocationSelect;
 
+    private final VerticalLayout fuelStationsLayout = new VerticalLayout();
+    private final Map map = new Map();
+
+    private final TabSheet tabSheet = new TabSheet();
     private List<FuelStation> fuelStations;
-    private Select<String> orderBySelect;
+    private final Select<String> orderBySelect;
+    private final Select<String> resultLimitSelect;
+
     private boolean useCurrentLocation;
     private Location currentLocation;
-    private Select<String> resultLimitSelect;
 
     public BesserTankenView() {
         var radiusField = new NumberField("Enter radius (km): ", "5");
@@ -89,7 +104,7 @@ public class BesserTankenView extends VerticalLayout {
                     useCurrentLocation ? currentLocation : null,
                     placeField.getValue(),
                     FuelType.fromName(fuelTypeSelect.getValue()),
-                    (int) Math.round(radiusField.getValue())
+                    radiusField.getValue() == null ? 0 : (int) Math.round(radiusField.getValue())
             );
             displayFuelStations();
         });
@@ -110,10 +125,21 @@ public class BesserTankenView extends VerticalLayout {
         horizontalLayout.setWidthFull();
         horizontalLayout.setVerticalComponentAlignment(Alignment.END, searchButton);
 
+        var tab1 = new Tab(FontAwesome.Solid.GAS_PUMP.create(), new Span("Fuel Stations"));
+        tab1.addThemeVariants(TabVariant.LUMO_ICON_ON_TOP);
+        var tab2 = new Tab(FontAwesome.Regular.MAP.create(), new Span("Map"));
+        tab2.addThemeVariants(TabVariant.LUMO_ICON_ON_TOP);
+
+        tabSheet.add(tab1, fuelStationsLayout);
+        tabSheet.add(tab2, new LazyComponent(this::renderMap));
+        tabSheet.setWidthFull();
+        tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
+
         add(
                 new H1("BesserTanken"),
                 horizontalLayout,
-                new Hr()
+                new Hr(),
+                tabSheet
         );
     }
 
@@ -173,13 +199,13 @@ public class BesserTankenView extends VerticalLayout {
 
         if (!fuelStations.isEmpty()) {
             int limit;
-            if(!resultLimitSelect.getValue().equals("all")) {
+            if (!resultLimitSelect.getValue().equals("all")) {
                 limit = Integer.parseInt(resultLimitSelect.getValue());
             } else {
                 limit = fuelStations.size();
             }
 
-            fuelStations.stream()
+            fuelStations = fuelStations.stream()
                     .filter(fuelStation -> fuelStation.getPrice() != 0.0)
                     .sorted((fuelStation1, fuelStation2) -> {
                         if (orderBySelect.getValue().equals("Distance")) {
@@ -189,59 +215,99 @@ public class BesserTankenView extends VerticalLayout {
                         }
                     })
                     .limit(limit)
-                    .forEach(fuelStation -> {
-                        var price = new H1(fuelStation.getPrice() + "€");
-                        price.setWidth("max-content");
+                    .toList();
 
-                        var name = new H3(fuelStation.getName());
-                        name.setWidth("max-content");
+            fuelStations.forEach(fuelStation -> {
+                var price = new H1(fuelStation.getPrice() + "€");
+                price.setWidth("max-content");
 
-                        var address = new Paragraph(fuelStation.getAddress() + ", " + fuelStation.getCity());
-                        address.setWidthFull();
-                        address.getStyle().setFontSize("var(--lumo-font-size-m)");
+                var name = new H3(fuelStation.getName());
+                name.setWidth("max-content");
 
-                        var distance = new Paragraph(fuelStation.getDistance() + " km");
-                        distance.setWidth("max-content");
-                        distance.getStyle().setFontSize("var(--lumo-font-size-m)");
+                var address = new Paragraph(fuelStation.getAddress() + ", " + fuelStation.getCity());
+                address.setWidthFull();
+                address.getStyle().setFontSize("var(--lumo-font-size-m)");
 
-                        var layoutNameAddress = new VerticalLayout(name, address);
-                        layoutNameAddress.setHeightFull();
-                        layoutNameAddress.addClassName(LumoUtility.Gap.SMALL);
-                        layoutNameAddress.addClassName(LumoUtility.Padding.SMALL);
-                        layoutNameAddress.setWidthFull();
-                        layoutNameAddress.setJustifyContentMode(JustifyContentMode.CENTER);
-                        layoutNameAddress.setAlignItems(Alignment.START);
+                var distance = new Paragraph(fuelStation.getDistance() + " km");
+                distance.setWidth("max-content");
+                distance.getStyle().setFontSize("var(--lumo-font-size-m)");
 
-                        var layoutPriceDistance = new VerticalLayout(price, distance);
-                        layoutPriceDistance.setHeightFull();
-                        layoutPriceDistance.setSpacing(false);
-                        layoutPriceDistance.addClassName(LumoUtility.Padding.XSMALL);
-                        layoutPriceDistance.setWidth("min-content");
-                        layoutPriceDistance.setJustifyContentMode(JustifyContentMode.CENTER);
-                        layoutPriceDistance.setAlignItems(Alignment.CENTER);
-                        layoutPriceDistance.setAlignSelf(Alignment.END, price);
-                        layoutPriceDistance.setAlignSelf(Alignment.CENTER, distance);
+                var layoutNameAddress = new VerticalLayout(name, address);
+                layoutNameAddress.setHeightFull();
+                layoutNameAddress.addClassName(LumoUtility.Gap.SMALL);
+                layoutNameAddress.addClassName(LumoUtility.Padding.SMALL);
+                layoutNameAddress.setWidthFull();
+                layoutNameAddress.setJustifyContentMode(JustifyContentMode.CENTER);
+                layoutNameAddress.setAlignItems(Alignment.START);
 
-                        var layoutRow = new HorizontalLayout(layoutNameAddress, layoutPriceDistance);
-                        layoutRow.addClassName("temp");
-                        layoutRow.setWidthFull();
-                        layoutRow.setHeight("min-content");
-                        layoutRow.setAlignItems(Alignment.CENTER);
-                        layoutRow.setJustifyContentMode(JustifyContentMode.CENTER);
-                        layoutRow.setFlexGrow(1.0, layoutNameAddress);
-                        layoutRow.setFlexGrow(1.0, layoutPriceDistance);
-                        layoutRow.getStyle().setBorder("3px solid var(--lumo-contrast-10pct)");
+                var layoutPriceDistance = new VerticalLayout(price, distance);
+                layoutPriceDistance.setHeightFull();
+                layoutPriceDistance.setSpacing(false);
+                layoutPriceDistance.addClassName(LumoUtility.Padding.XSMALL);
+                layoutPriceDistance.setWidth("min-content");
+                layoutPriceDistance.setJustifyContentMode(JustifyContentMode.CENTER);
+                layoutPriceDistance.setAlignItems(Alignment.CENTER);
+                layoutPriceDistance.setAlignSelf(Alignment.END, price);
+                layoutPriceDistance.setAlignSelf(Alignment.CENTER, distance);
 
-                        setWidthFull();
-                        getStyle().set("flex-grow", "1");
-                        setFlexGrow(1.0, layoutRow);
-                        add(layoutRow);
-                    });
+                var layoutRow = new HorizontalLayout(layoutNameAddress, layoutPriceDistance);
+                layoutRow.addClassName("temp");
+                layoutRow.setWidthFull();
+                layoutRow.setHeight("min-content");
+                layoutRow.setAlignItems(Alignment.CENTER);
+                layoutRow.setJustifyContentMode(JustifyContentMode.CENTER);
+                layoutRow.setFlexGrow(1.0, layoutNameAddress);
+                layoutRow.setFlexGrow(1.0, layoutPriceDistance);
+                layoutRow.getStyle().setBorder("3px solid var(--lumo-contrast-10pct)");
+
+                setWidthFull();
+                getStyle().set("flex-grow", "1");
+                setFlexGrow(1.0, layoutRow);
+                fuelStationsLayout.add(layoutRow);
+            });
         } else {
             var h2 = new H2("No fuel stations found for your input.");
             h2.addClassName("temp");
-            add(h2);
+            fuelStationsLayout.add(h2);
         }
     }
 
+    private Map renderMap() {
+        map.setHeight("800px");
+        map.setZoom(13);
+        map.setCenter(new Coordinate(13.4, 52.5));
+
+        if(fuelStations == null) {
+            return map;
+        }
+
+        fuelStations.forEach(fuelStation -> {
+            try {
+                FuelStationDetail fuelStationDetails = kraftstoffbilligerJob.getFuelStationDetails(fuelStation.getId());
+                fuelStation.setDetails(fuelStationDetails);
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        fuelStations.forEach(fuelStation -> {
+            var marker = new MarkerFeature();
+            marker.setCoordinates(new Coordinate(fuelStation.getDetails().getLon(), fuelStation.getDetails().getLat()));
+            marker.setText(fuelStation.getName());
+            marker.setDraggable(false);
+            map.getFeatureLayer().addFeature(marker);
+        });
+
+        return map;
+    }
+
+    private static class LazyComponent extends Div {
+        public LazyComponent(SerializableSupplier<? extends Component> supplier) {
+            addAttachListener(e -> {
+                if (getElement().getChildCount() == 0) {
+                    add(supplier.get());
+                }
+            });
+        }
+    }
 }

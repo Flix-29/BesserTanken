@@ -3,6 +3,7 @@
   "license": "UNLICENSED",
   "type": "module",
   "dependencies": {
+    "@flowingcode/font-awesome-iron-iconset": "5.1.0",
     "@polymer/polymer": "3.5.1",
     "@vaadin/a11y-base": "24.3.13",
     "@vaadin/accordion": "24.3.13",
@@ -99,6 +100,7 @@
   },
   "vaadin": {
     "dependencies": {
+      "@flowingcode/font-awesome-iron-iconset": "5.1.0",
       "@polymer/polymer": "3.5.1",
       "@vaadin/a11y-base": "24.3.13",
       "@vaadin/accordion": "24.3.13",
@@ -193,7 +195,7 @@
       "workbox-core": "7.0.0",
       "workbox-precaching": "7.0.0"
     },
-    "hash": "6eccca82951691d4782bd31b0dfb7a223bf815c4ed7b48e46affb6068dfce591"
+    "hash": "7f1f2e9e1a1c9ebfc0552be5826b43d2bf10b1ced9dbf02afad19fefc4ecca76"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",
@@ -270,6 +272,7 @@
     "@polymer/polymer": "$@polymer/polymer",
     "proj4": "$proj4",
     "@vaadin/vaadin-themable-mixin": "$@vaadin/vaadin-themable-mixin",
-    "date-fns": "$date-fns"
+    "date-fns": "$date-fns",
+    "@flowingcode/font-awesome-iron-iconset": "$@flowingcode/font-awesome-iron-iconset"
   }
 }
