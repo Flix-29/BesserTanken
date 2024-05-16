@@ -42,6 +42,7 @@ public class BesserTankenView extends VerticalLayout {
     private Select<String> orderBySelect;
     private boolean useCurrentLocation;
     private Location currentLocation;
+    private Select<String> resultLimitSelect;
 
     public BesserTankenView() {
         var radiusField = new TextField("Enter radius (km): ", "5", "5");
@@ -68,6 +69,11 @@ public class BesserTankenView extends VerticalLayout {
         fuelTypeSelect.setLabel("Select fuel type: ");
         fuelTypeSelect.setValue(FuelType.DIESEL.getName());
 
+        resultLimitSelect = new Select<>();
+        resultLimitSelect.setItems("10", "25", "50", "all");
+        resultLimitSelect.setLabel("Result limit:");
+        resultLimitSelect.setValue("10");
+
         orderBySelect = new Select<>(event ->
                 displayFuelStations()
         );
@@ -86,9 +92,9 @@ public class BesserTankenView extends VerticalLayout {
         });
         searchButton.addClickShortcut(Key.ENTER);
 
-        HorizontalLayout orderByLayout = new HorizontalLayout(orderBySelect);
-        orderByLayout.setWidthFull();
-        orderByLayout.setJustifyContentMode(JustifyContentMode.END);
+        HorizontalLayout orderByLimitLayout = new HorizontalLayout(resultLimitSelect, orderBySelect);
+        orderByLimitLayout.setWidthFull();
+        orderByLimitLayout.setJustifyContentMode(JustifyContentMode.END);
 
         var horizontalLayout = new HorizontalLayout(
                 useCurrentLocationSelect,
@@ -96,7 +102,7 @@ public class BesserTankenView extends VerticalLayout {
                 fuelTypeSelect,
                 radiusField,
                 searchButton,
-                orderByLayout
+                orderByLimitLayout
         );
         horizontalLayout.setWidthFull();
         horizontalLayout.setVerticalComponentAlignment(Alignment.END, searchButton);
@@ -163,6 +169,13 @@ public class BesserTankenView extends VerticalLayout {
         if (fuelStations == null) return;
 
         if (!fuelStations.isEmpty()) {
+            int limit;
+            if(!resultLimitSelect.getValue().equals("all")) {
+                limit = Integer.parseInt(resultLimitSelect.getValue());
+            } else {
+                limit = fuelStations.size();
+            }
+
             fuelStations.stream()
                     .filter(fuelStation -> fuelStation.getPrice() != 0.0)
                     .sorted((fuelStation1, fuelStation2) -> {
@@ -172,7 +185,7 @@ public class BesserTankenView extends VerticalLayout {
                             return Double.compare(fuelStation1.getPrice(), fuelStation2.getPrice());
                         }
                     })
-                    .limit(10)
+                    .limit(limit)
                     .forEach(fuelStation -> {
                         var price = new H1(fuelStation.getPrice() + "€");
                         price.setWidth("max-content");
