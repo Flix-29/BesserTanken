@@ -308,6 +308,7 @@ public class BesserTankenView extends VerticalLayout {
 
             add(tooltip);
         });
+        map.setHeight("800px");
         map.setZoom(13);
         map.setCenter(new Coordinate(13.4, 52.5));
 
