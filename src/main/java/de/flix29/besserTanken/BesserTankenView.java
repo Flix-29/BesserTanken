@@ -47,16 +47,16 @@ public class BesserTankenView extends VerticalLayout {
     private final KraftstoffbilligerRequests kraftstoffbilligerRequests = new KraftstoffbilligerRequests();
     private final KraftstoffbilligerJob kraftstoffbilligerJob = new KraftstoffbilligerJob();
 
-    private final Select<String> useCurrentLocationSelect;
 
     private final VerticalLayout fuelStationsLayout = new VerticalLayout();
     private final Map map = new Map();
 
-    private final TabSheet tabSheet = new TabSheet();
-    private List<FuelStation> fuelStations;
+    private final Select<String> useCurrentLocationSelect;
     private final Select<String> orderBySelect;
     private final Select<String> resultLimitSelect;
 
+    private List<FuelStation> foundFuelStations;
+    private List<FuelStation> displayedFuelStations;
     private boolean useCurrentLocation;
     private Location currentLocation;
 
@@ -87,7 +87,7 @@ public class BesserTankenView extends VerticalLayout {
         fuelTypeSelect.setLabel("Select fuel type: ");
         fuelTypeSelect.setValue(FuelType.DIESEL.getName());
 
-        resultLimitSelect = new Select<>();
+        resultLimitSelect = new Select<>(event -> displayFuelStations());
         resultLimitSelect.setItems("10", "25", "50", "all");
         resultLimitSelect.setLabel("Result limit:");
         resultLimitSelect.setValue("10");
@@ -100,7 +100,7 @@ public class BesserTankenView extends VerticalLayout {
         orderBySelect.setValue("Price");
 
         var searchButton = new Button("Search", event -> {
-            fuelStations = performSearch(
+            foundFuelStations = performSearch(
                     useCurrentLocation ? currentLocation : null,
                     placeField.getValue(),
                     FuelType.fromName(fuelTypeSelect.getValue()),
@@ -130,6 +130,7 @@ public class BesserTankenView extends VerticalLayout {
         var tab2 = new Tab(FontAwesome.Regular.MAP.create(), new Span("Map"));
         tab2.addThemeVariants(TabVariant.LUMO_ICON_ON_TOP);
 
+        TabSheet tabSheet = new TabSheet();
         tabSheet.add(tab1, fuelStationsLayout);
         tabSheet.add(tab2, new LazyComponent(this::renderMap));
         tabSheet.setWidthFull();
@@ -169,25 +170,25 @@ public class BesserTankenView extends VerticalLayout {
     }
 
     private List<FuelStation> performSearch(Location location, String place, FuelType fuelType, Integer radius) {
-        fuelStations = new ArrayList<>();
+        foundFuelStations = new ArrayList<>();
         if (location != null && location.getCoords() != null) {
             LOGGER.info("Searching location: {} with fuel type: {} and radius: {}.", location, fuelType, radius);
-            fuelStations = kraftstoffbilligerRequests.getFuelStationsByLocation(List.of(location), fuelType, radius);
+            foundFuelStations = kraftstoffbilligerRequests.getFuelStationsByLocation(List.of(location), fuelType, radius);
         } else if (!place.isEmpty()) {
             try {
                 var plz = Integer.parseInt(place);
                 LOGGER.info("Searching plz: {} with fuel type: {} and radius: {}.", plz, fuelType, radius);
-                fuelStations = kraftstoffbilligerRequests.getFuelStationsByPlz(plz, fuelType, radius);
+                foundFuelStations = kraftstoffbilligerRequests.getFuelStationsByPlz(plz, fuelType, radius);
             } catch (NumberFormatException e) {
                 LOGGER.info("Searching place: {} with fuel type: {} and radius: {}.", place, fuelType, radius);
-                fuelStations = kraftstoffbilligerRequests.getFuelStationsByPlace(place, fuelType, radius);
+                foundFuelStations = kraftstoffbilligerRequests.getFuelStationsByPlace(place, fuelType, radius);
             }
         } else {
             LOGGER.warn("Please fill in a place or plz or agree to use your location.");
         }
-        LOGGER.info("Found {} fuel stations.", fuelStations.size());
+        LOGGER.info("Found {} fuel stations.", foundFuelStations.size());
 
-        return fuelStations;
+        return foundFuelStations;
     }
 
     private void displayFuelStations() {
@@ -195,17 +196,17 @@ public class BesserTankenView extends VerticalLayout {
                 .filter(child -> child.hasClassName("temp"))
                 .forEach(this::remove);
 
-        if (fuelStations == null) return;
+        if (foundFuelStations == null) return;
 
-        if (!fuelStations.isEmpty()) {
+        if (!foundFuelStations.isEmpty()) {
             int limit;
             if (!resultLimitSelect.getValue().equals("all")) {
                 limit = Integer.parseInt(resultLimitSelect.getValue());
             } else {
-                limit = fuelStations.size();
+                limit = foundFuelStations.size();
             }
 
-            fuelStations = fuelStations.stream()
+            displayedFuelStations = foundFuelStations.stream()
                     .filter(fuelStation -> fuelStation.getPrice() != 0.0)
                     .sorted((fuelStation1, fuelStation2) -> {
                         if (orderBySelect.getValue().equals("Distance")) {
@@ -217,7 +218,7 @@ public class BesserTankenView extends VerticalLayout {
                     .limit(limit)
                     .toList();
 
-            fuelStations.forEach(fuelStation -> {
+            displayedFuelStations.forEach(fuelStation -> {
                 var price = new H1(fuelStation.getPrice() + "€");
                 price.setWidth("max-content");
 
@@ -277,25 +278,22 @@ public class BesserTankenView extends VerticalLayout {
         map.setZoom(13);
         map.setCenter(new Coordinate(13.4, 52.5));
 
-        if(fuelStations == null) {
+        if(displayedFuelStations == null) {
             return map;
         }
 
-        fuelStations.forEach(fuelStation -> {
+        displayedFuelStations.forEach(fuelStation -> {
             try {
                 FuelStationDetail fuelStationDetails = kraftstoffbilligerJob.getFuelStationDetails(fuelStation.getId());
                 fuelStation.setDetails(fuelStationDetails);
+                var marker = new MarkerFeature();
+                marker.setCoordinates(new Coordinate(fuelStation.getDetails().getLon(), fuelStation.getDetails().getLat()));
+                marker.setText(fuelStation.getName());
+                marker.setDraggable(false);
+                map.getFeatureLayer().addFeature(marker);
             } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
-        });
-
-        fuelStations.forEach(fuelStation -> {
-            var marker = new MarkerFeature();
-            marker.setCoordinates(new Coordinate(fuelStation.getDetails().getLon(), fuelStation.getDetails().getLat()));
-            marker.setText(fuelStation.getName());
-            marker.setDraggable(false);
-            map.getFeatureLayer().addFeature(marker);
         });
 
         return map;
