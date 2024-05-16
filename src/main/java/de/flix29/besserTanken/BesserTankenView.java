@@ -8,6 +8,7 @@ import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -45,7 +46,9 @@ public class BesserTankenView extends VerticalLayout {
     private Select<String> resultLimitSelect;
 
     public BesserTankenView() {
-        var radiusField = new TextField("Enter radius (km): ", "5", "5");
+        var radiusField = new NumberField("Enter radius (km): ", "5");
+        radiusField.setSuffixComponent(new Div("km"));
+
         var placeField = new TextField("Place or plz: ", "'Berlin' or '10178'");
 
         useCurrentLocationSelect = new Select<>(event -> {
@@ -86,7 +89,7 @@ public class BesserTankenView extends VerticalLayout {
                     useCurrentLocation ? currentLocation : null,
                     placeField.getValue(),
                     FuelType.fromName(fuelTypeSelect.getValue()),
-                    radiusField.getValue().isEmpty() ? null : Integer.parseInt(radiusField.getValue())
+                    (int) Math.round(radiusField.getValue())
             );
             displayFuelStations();
         });
