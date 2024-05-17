@@ -77,7 +77,7 @@
     "construct-style-sheets-polyfill": "3.1.0",
     "date-fns": "2.29.3",
     "lit": "3.1.2",
-    "proj4": "2.9.2"
+    "proj4": "2.11.0"
   },
   "devDependencies": {
     "@rollup/plugin-replace": "5.0.5",
@@ -173,7 +173,7 @@
       "construct-style-sheets-polyfill": "3.1.0",
       "date-fns": "2.29.3",
       "lit": "3.1.2",
-      "proj4": "2.9.2"
+      "proj4": "2.11.0"
     },
     "devDependencies": {
       "@rollup/plugin-replace": "5.0.5",
