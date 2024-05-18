@@ -98,9 +98,7 @@ public class BesserTankenView extends VerticalLayout {
         resultLimitSelect.setLabel("Result limit:");
         resultLimitSelect.setValue("10");
 
-        orderBySelect = new Select<>(event ->
-                displayFuelStations()
-        );
+        orderBySelect = new Select<>(event -> displayFuelStations());
         orderBySelect.setItems("Price", "Distance");
         orderBySelect.setLabel("Order by: ");
         orderBySelect.setValue("Price");
@@ -338,9 +336,9 @@ public class BesserTankenView extends VerticalLayout {
     }
 
     private void removeComponentByClassName(String className) {
-        getChildren()
+        fuelStationsLayout.getChildren()
                 .filter(child -> child.hasClassName(className))
-                .forEach(this::remove);
+                .forEach(fuelStationsLayout::remove);
     }
 
     private static class LazyComponent extends Div {
