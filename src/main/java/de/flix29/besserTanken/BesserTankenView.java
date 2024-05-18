@@ -1,9 +1,11 @@
 package de.flix29.besserTanken;
 
 import com.flowingcode.vaadin.addons.fontawesome.FontAwesome;
-import com.vaadin.flow.component.*;
+import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.dom.Style.Position;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.map.Map;
 import com.vaadin.flow.component.map.configuration.Coordinate;
@@ -17,16 +19,17 @@ import com.vaadin.flow.component.tabs.TabSheetVariant;
 import com.vaadin.flow.component.tabs.TabVariant;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.dom.Style.Position;
 import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import de.flix29.besserTanken.kraftstoffbilliger.KraftstoffbilligerJob;
 import de.flix29.besserTanken.kraftstoffbilliger.KraftstoffbilligerRequests;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStation;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStationDetail;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelType;
 import de.flix29.besserTanken.model.openDataSoft.Location;
+import de.flix29.besserTanken.openDataSoft.OpenDataSoftRequests;
 import jakarta.annotation.security.PermitAll;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -45,9 +48,8 @@ import java.util.List;
 public class BesserTankenView extends VerticalLayout {
 
     private final Logger LOGGER = LoggerFactory.getLogger(BesserTankenView.class);
-    private final KraftstoffbilligerRequests kraftstoffbilligerRequests = new KraftstoffbilligerRequests();
-    private final KraftstoffbilligerJob kraftstoffbilligerJob = new KraftstoffbilligerJob();
-
+    private final KraftstoffbilligerRequests kraftstoffbilligerRequests;
+    private final OpenDataSoftRequests openDataSoftRequests;
 
     private final VerticalLayout fuelStationsLayout = new VerticalLayout();
 
@@ -59,9 +61,12 @@ public class BesserTankenView extends VerticalLayout {
     private List<FuelStation> foundFuelStations;
     private List<FuelStation> displayedFuelStations;
     private boolean useCurrentLocation;
-    private Location currentLocation;
+    private List<Location> currentLocation;
 
-    public BesserTankenView() {
+    public BesserTankenView(KraftstoffbilligerRequests kraftstoffbilligerRequests, OpenDataSoftRequests openDataSoftRequests) {
+        this.kraftstoffbilligerRequests = kraftstoffbilligerRequests;
+        this.openDataSoftRequests = openDataSoftRequests;
+
         var radiusField = new NumberField("Enter radius (km): ", "5");
         radiusField.setSuffixComponent(new Div("km"));
 
@@ -102,7 +107,6 @@ public class BesserTankenView extends VerticalLayout {
 
         var searchButton = new Button("Search", event -> {
             foundFuelStations = performSearch(
-                    useCurrentLocation ? currentLocation : null,
                     placeField.getValue(),
                     FuelType.fromName(fuelTypeSelect.getValue()),
                     radiusField.getValue() == null ? 0 : (int) Math.round(radiusField.getValue())
@@ -166,27 +170,30 @@ public class BesserTankenView extends VerticalLayout {
             return;
         }
 
-        currentLocation = new Location();
-        currentLocation.setCoords(Pair.of(coords[0], coords[1]));
+        var location = new Location();
+        location.setCoords(Pair.of(coords[0], coords[1]));
+        currentLocation = List.of(location);
     }
 
-    private List<FuelStation> performSearch(Location location, String place, FuelType fuelType, Integer radius) {
+    private List<FuelStation> performSearch(String place, FuelType fuelType, Integer radius) {
         foundFuelStations = new ArrayList<>();
-        if (location != null && location.getCoords() != null) {
-            LOGGER.info("Searching location: {} with fuel type: {} and radius: {}.", location, fuelType, radius);
-            foundFuelStations = kraftstoffbilligerRequests.getFuelStationsByLocation(List.of(location), fuelType, radius);
-        } else if (!place.isEmpty()) {
+        if (!place.isEmpty()) {
             try {
                 var plz = Integer.parseInt(place);
-                LOGGER.info("Searching plz: {} with fuel type: {} and radius: {}.", plz, fuelType, radius);
-                foundFuelStations = kraftstoffbilligerRequests.getFuelStationsByPlz(plz, fuelType, radius);
+                LOGGER.info("Searching coords for plz: {}", plz);
+                currentLocation = openDataSoftRequests.getCoordsFromPlz(plz);
             } catch (NumberFormatException e) {
-                LOGGER.info("Searching place: {} with fuel type: {} and radius: {}.", place, fuelType, radius);
-                foundFuelStations = kraftstoffbilligerRequests.getFuelStationsByPlace(place, fuelType, radius);
+                LOGGER.info("Searching coords for place: {}", place);
+                currentLocation = openDataSoftRequests.getCoordsFromPlzName(place);
             }
-        } else {
+        }
+
+        if (currentLocation.isEmpty()) {
             LOGGER.warn("Please fill in a place or plz or agree to use your location.");
         }
+
+        LOGGER.info("Searching location: {} with fuel type: {} and radius: {}.", currentLocation.toString(), fuelType, radius);
+        foundFuelStations = kraftstoffbilligerRequests.getFuelStationsByLocation(currentLocation, fuelType, radius);
         LOGGER.info("Found {} fuel stations.", foundFuelStations.size());
 
         return foundFuelStations;
@@ -274,12 +281,30 @@ public class BesserTankenView extends VerticalLayout {
 
     private Map renderMap() {
         map = new Map();
+        map.setHeight("800px");
+        map.setZoom(13);
+        map.setCenter(new Coordinate(13.4, 52.5));
 
+        if (displayedFuelStations == null) {
+            return map;
+        }
+
+        displayedFuelStations = kraftstoffbilligerRequests.addDetailsToFuelStations(displayedFuelStations);
+        displayedFuelStations.forEach(fuelStation -> {
+            var marker = new MarkerFeature();
+            marker.setCoordinates(new Coordinate(fuelStation.getDetails().getLon(), fuelStation.getDetails().getLat()));
+            marker.setText(fuelStation.getName());
+            marker.setDraggable(false);
+            map.getFeatureLayer().addFeature(marker);
+        });
+
+        map.addClickEventListener(event -> removeComponentByClassName("tooltip"));
         map.addFeatureClickListener(event -> {
             var marker = (MarkerFeature) event.getFeature();
             var coordinates = marker.getCoordinates();
             var fuelStation = displayedFuelStations.stream()
-                    .filter(fuelStationsItem -> fuelStationsItem.getDetails().getLat() == coordinates.getY() && fuelStationsItem.getDetails().getLon() == coordinates.getX())
+                    .filter(fuelStationsItem -> fuelStationsItem.getDetails().getLat() == coordinates.getY() &&
+                            fuelStationsItem.getDetails().getLon() == coordinates.getX())
                     .findFirst();
 
             removeComponentByClassName("tooltip");
@@ -307,29 +332,6 @@ public class BesserTankenView extends VerticalLayout {
             });
 
             add(tooltip);
-        });
-        map.setHeight("800px");
-        map.setZoom(13);
-        map.setCenter(new Coordinate(13.4, 52.5));
-
-        if (displayedFuelStations == null) {
-            return map;
-        }
-
-        map.addClickEventListener(event -> removeComponentByClassName("tooltip"));
-
-        displayedFuelStations.forEach(fuelStation -> {
-            try {
-                FuelStationDetail fuelStationDetails = kraftstoffbilligerJob.getFuelStationDetails(fuelStation.getId());
-                fuelStation.setDetails(fuelStationDetails);
-                var marker = new MarkerFeature();
-                marker.setCoordinates(new Coordinate(fuelStation.getDetails().getLon(), fuelStation.getDetails().getLat()));
-                marker.setText(fuelStation.getName());
-                marker.setDraggable(false);
-                map.getFeatureLayer().addFeature(marker);
-            } catch (IOException | InterruptedException e) {
-                throw new RuntimeException(e);
-            }
         });
 
         return map;
