@@ -52,11 +52,13 @@ public class BesserTankenView extends VerticalLayout {
     private final OpenDataSoftRequests openDataSoftRequests;
 
     private final VerticalLayout fuelStationsLayout = new VerticalLayout();
+    private final VerticalLayout mapComponent = new VerticalLayout();
 
     private Map map;
     private final Select<String> useCurrentLocationSelect;
     private final Select<String> orderBySelect;
     private final Select<String> resultLimitSelect;
+    private final TabSheet tabSheet;
 
     private List<FuelStation> foundFuelStations;
     private List<FuelStation> displayedFuelStations;
@@ -130,14 +132,23 @@ public class BesserTankenView extends VerticalLayout {
 
         var tab1 = new Tab(FontAwesome.Solid.GAS_PUMP.create(), new Span("Fuel Stations"));
         tab1.addThemeVariants(TabVariant.LUMO_ICON_ON_TOP);
+        tab1.addClassName("FuelStations");
         var tab2 = new Tab(FontAwesome.Regular.MAP.create(), new Span("Map"));
         tab2.addThemeVariants(TabVariant.LUMO_ICON_ON_TOP);
+        tab2.setClassName("Map");
 
-        TabSheet tabSheet = new TabSheet();
+        tabSheet = new TabSheet();
         tabSheet.add(tab1, fuelStationsLayout);
-        tabSheet.add(tab2, new LazyComponent(this::renderMap));
+        tabSheet.add(tab2, mapComponent);
         tabSheet.setWidthFull();
         tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
+        tabSheet.addSelectedChangeListener(event -> {
+            if (event.getSelectedTab().equals(tab1)) {
+                removeComponentByClassName(this, "tooltip");
+            } else if (event.getSelectedTab().equals(tab2)) {
+                renderMap();
+            }
+        });
 
         add(
                 new H1("BesserTanken"),
@@ -198,7 +209,7 @@ public class BesserTankenView extends VerticalLayout {
     }
 
     private void displayFuelStations() {
-        removeComponentByClassName("temp");
+        removeComponentByClassName(fuelStationsLayout, "temp");
 
         if (foundFuelStations == null) return;
 
@@ -270,6 +281,10 @@ public class BesserTankenView extends VerticalLayout {
                 setFlexGrow(1.0, layoutRow);
                 fuelStationsLayout.add(layoutRow);
             });
+
+            if (tabSheet.getSelectedTab().getClassName().contains("Map")) {
+                renderMap();
+            }
         } else {
             var h2 = new H2("No fuel stations found for your input.");
             h2.addClassName("temp");
@@ -277,14 +292,16 @@ public class BesserTankenView extends VerticalLayout {
         }
     }
 
-    private Map renderMap() {
+    private void renderMap() {
+        mapComponent.removeAll();
         map = new Map();
         map.setHeight("800px");
         map.setZoom(13);
         map.setCenter(new Coordinate(13.4, 52.5));
 
         if (displayedFuelStations == null) {
-            return map;
+            mapComponent.add(map);
+            return;
         }
 
         displayedFuelStations = kraftstoffbilligerRequests.addDetailsToFuelStations(displayedFuelStations);
@@ -296,7 +313,7 @@ public class BesserTankenView extends VerticalLayout {
             map.getFeatureLayer().addFeature(marker);
         });
 
-        map.addClickEventListener(event -> removeComponentByClassName("tooltip"));
+        map.addClickEventListener(event -> removeComponentByClassName(this, "tooltip"));
         map.addFeatureClickListener(event -> {
             var marker = (MarkerFeature) event.getFeature();
             var coordinates = marker.getCoordinates();
@@ -305,7 +322,7 @@ public class BesserTankenView extends VerticalLayout {
                             fuelStationsItem.getDetails().getLon() == coordinates.getX())
                     .findFirst();
 
-            removeComponentByClassName("tooltip");
+            removeComponentByClassName(this, "tooltip");
             Div tooltip = new Div();
             tooltip.addClassName("tooltip");
 
@@ -332,13 +349,13 @@ public class BesserTankenView extends VerticalLayout {
             add(tooltip);
         });
 
-        return map;
+        mapComponent.add(map);
     }
 
-    private void removeComponentByClassName(String className) {
-        fuelStationsLayout.getChildren()
+    private <T extends Component> void removeComponentByClassName(T parent, String className) {
+        parent.getChildren()
                 .filter(child -> child.hasClassName(className))
-                .forEach(fuelStationsLayout::remove);
+                .forEach(Component::removeFromParent);
     }
 
     private static class LazyComponent extends Div {
