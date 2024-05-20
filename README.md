@@ -6,7 +6,7 @@ This app uses the data from the [Kraftstoffbilliger-Api](https://kraftstoffbilli
 gas prices. To convert the german postal code and places to coordinates the app uses the 
 [OpenDataSoft-Api](https://public.opendatasoft.com/explore/dataset/georef-germany-postleitzahl/table/).
 
-![image](src/main/resources/preview.png)
+![image](src/main/resources/images/preview.png)
 
 ## How to start the application locally:
 

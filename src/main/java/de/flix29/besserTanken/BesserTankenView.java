@@ -10,6 +10,7 @@ import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.map.Map;
 import com.vaadin.flow.component.map.configuration.Coordinate;
 import com.vaadin.flow.component.map.configuration.feature.MarkerFeature;
+import com.vaadin.flow.component.map.configuration.style.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -297,12 +298,32 @@ public class BesserTankenView extends VerticalLayout {
         map = new Map();
         map.setHeight("800px");
         map.setZoom(13);
-        map.setCenter(new Coordinate(13.4, 52.5));
+
+        var startCoords = new Coordinate(13.4, 52.5);
+        if(currentLocation != null && !currentLocation.isEmpty()) {
+            var coords = currentLocation.get(0).getCoords();
+            startCoords = new Coordinate(coords.getRight(), coords.getLeft());
+        }
+
+        map.setCenter(startCoords);
+
+        var locationMarker = new MarkerFeature();
+        locationMarker.setCoordinates(startCoords);
+        locationMarker.setText("Your location");
+        locationMarker.setDraggable(false);
+        var locationMarkerIcon = new Icon.Options();
+        locationMarkerIcon.setSrc("images/locationdot-lightcoral-duotone.png");
+//        locationMarker.setIcon(new Icon(locationMarkerIcon));
+        map.getFeatureLayer().addFeature(locationMarker);
 
         if (displayedFuelStations == null) {
             mapComponent.add(map);
             return;
         }
+
+        var markerIcon = new Icon.Options();
+        markerIcon.setSrc("images/locationdot-cornflowerblue-duotone.png");
+        markerIcon.setImgSize(new Icon.ImageSize(20, 20));
 
         displayedFuelStations = kraftstoffbilligerRequests.addDetailsToFuelStations(displayedFuelStations);
         displayedFuelStations.forEach(fuelStation -> {
@@ -310,6 +331,7 @@ public class BesserTankenView extends VerticalLayout {
             marker.setCoordinates(new Coordinate(fuelStation.getDetails().getLon(), fuelStation.getDetails().getLat()));
             marker.setText(fuelStation.getName());
             marker.setDraggable(false);
+//            marker.setIcon(new Icon(markerIcon));
             map.getFeatureLayer().addFeature(marker);
         });
 
