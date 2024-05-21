@@ -24,6 +24,7 @@ import com.vaadin.flow.dom.Style.Position;
 import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import de.flix29.besserTanken.kraftstoffbilliger.KraftstoffbilligerRequests;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStation;
@@ -305,33 +306,34 @@ public class BesserTankenView extends VerticalLayout {
             startCoords = new Coordinate(coords.getRight(), coords.getLeft());
         }
 
-        map.setCenter(startCoords);
 
-        var locationMarker = new MarkerFeature();
-        locationMarker.setCoordinates(startCoords);
+        var optionsRed = new Icon.Options();
+        optionsRed.setImg(new StreamResource("locationdot-lightcoral-duotone.png", () -> getClass().getResourceAsStream("/images/locationdot-lightcoral-duotone.png")));
+//        optionsRed.setImgSize(new Icon.ImageSize(20, 20));
+//        optionsRed.setAnchor(new Icon.Anchor(10, 10));
+
+        var locationMarker = new MarkerFeature(startCoords, new Icon(optionsRed));
         locationMarker.setText("Your location");
         locationMarker.setDraggable(false);
-        var locationMarkerIcon = new Icon.Options();
-        locationMarkerIcon.setSrc("images/locationdot-lightcoral-duotone.png");
-//        locationMarker.setIcon(new Icon(locationMarkerIcon));
+
         map.getFeatureLayer().addFeature(locationMarker);
+        map.setCenter(startCoords);
 
         if (displayedFuelStations == null) {
             mapComponent.add(map);
             return;
         }
 
-        var markerIcon = new Icon.Options();
-        markerIcon.setSrc("images/locationdot-cornflowerblue-duotone.png");
-        markerIcon.setImgSize(new Icon.ImageSize(20, 20));
+        var optionsBlue = new Icon.Options();
+        optionsBlue.setImg(new StreamResource("locationdot-cornflowerblue-duotone.png", () -> getClass().getResourceAsStream("/images/locationdot-cornflowerblue-duotone.png")));
 
         displayedFuelStations = kraftstoffbilligerRequests.addDetailsToFuelStations(displayedFuelStations);
         displayedFuelStations.forEach(fuelStation -> {
-            var marker = new MarkerFeature();
-            marker.setCoordinates(new Coordinate(fuelStation.getDetails().getLon(), fuelStation.getDetails().getLat()));
+            var coords = new Coordinate(fuelStation.getDetails().getLon(), fuelStation.getDetails().getLat());
+            var marker = new MarkerFeature(coords, new Icon(optionsBlue));
             marker.setText(fuelStation.getName());
             marker.setDraggable(false);
-//            marker.setIcon(new Icon(markerIcon));
+
             map.getFeatureLayer().addFeature(marker);
         });
 
