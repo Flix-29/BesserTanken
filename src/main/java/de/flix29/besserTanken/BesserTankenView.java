@@ -306,11 +306,9 @@ public class BesserTankenView extends VerticalLayout {
             startCoords = new Coordinate(coords.getRight(), coords.getLeft());
         }
 
-
         var optionsRed = new Icon.Options();
-        optionsRed.setImg(new StreamResource("locationdot-lightcoral-duotone.png", () -> getClass().getResourceAsStream("/images/locationdot-lightcoral-duotone.png")));
-//        optionsRed.setImgSize(new Icon.ImageSize(20, 20));
-//        optionsRed.setAnchor(new Icon.Anchor(10, 10));
+        optionsRed.setImg(new StreamResource("locationdot-lightcoral-duotone.png", () -> getClass().getResourceAsStream("/images/small_locationdot-lightcoral-duotone.png")));
+        optionsRed.setAnchor(new Icon.Anchor(0.5, 0.8));
 
         var locationMarker = new MarkerFeature(startCoords, new Icon(optionsRed));
         locationMarker.setText("Your location");
@@ -325,7 +323,8 @@ public class BesserTankenView extends VerticalLayout {
         }
 
         var optionsBlue = new Icon.Options();
-        optionsBlue.setImg(new StreamResource("locationdot-cornflowerblue-duotone.png", () -> getClass().getResourceAsStream("/images/locationdot-cornflowerblue-duotone.png")));
+        optionsBlue.setImg(new StreamResource("locationdot-cornflowerblue-duotone.png", () -> getClass().getResourceAsStream("/images/small_locationdot-cornflowerblue-duotone.png")));
+        optionsBlue.setAnchor(new Icon.Anchor(0.5, 0.8));
 
         displayedFuelStations = kraftstoffbilligerRequests.addDetailsToFuelStations(displayedFuelStations);
         displayedFuelStations.forEach(fuelStation -> {
