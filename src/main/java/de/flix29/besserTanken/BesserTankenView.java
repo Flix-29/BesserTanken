@@ -184,6 +184,10 @@ public class BesserTankenView extends VerticalLayout {
         var location = new Location();
         location.setCoords(Pair.of(coords[0], coords[1]));
         currentLocation = List.of(location);
+
+        if(tabSheet != null && tabSheet.getSelectedTab().getClassName().equals("Map")) {
+            renderMap();
+        }
     }
 
     private List<FuelStation> performSearch(String place, FuelType fuelType, Integer radius) {
