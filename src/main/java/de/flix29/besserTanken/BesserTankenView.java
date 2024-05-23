@@ -11,6 +11,7 @@ import com.vaadin.flow.component.map.Map;
 import com.vaadin.flow.component.map.configuration.Coordinate;
 import com.vaadin.flow.component.map.configuration.feature.MarkerFeature;
 import com.vaadin.flow.component.map.configuration.style.Icon;
+import com.vaadin.flow.component.map.configuration.style.TextStyle;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -185,7 +186,7 @@ public class BesserTankenView extends VerticalLayout {
         location.setCoords(Pair.of(coords[0], coords[1]));
         currentLocation = List.of(location);
 
-        if(tabSheet != null && tabSheet.getSelectedTab().getClassName().equals("Map")) {
+        if (tabSheet != null && tabSheet.getSelectedTab().getClassName().equals("Map")) {
             renderMap();
         }
     }
@@ -304,8 +305,21 @@ public class BesserTankenView extends VerticalLayout {
         map.setHeight("800px");
         map.setZoom(13);
 
+        map.addViewMoveEndEventListener(event -> {
+            var textStyle = new TextStyle();
+            if (event.getZoom() < 12.5) {
+                textStyle.setScale(0);
+            } else {
+                textStyle.setScale(1);
+            }
+            map.getFeatureLayer().getFeatures().stream()
+                    .filter(feature -> feature instanceof MarkerFeature)
+                    .map(feature -> (MarkerFeature) feature)
+                    .forEach(marker -> marker.setTextStyle(textStyle));
+        });
+
         var startCoords = new Coordinate(13.4, 52.5);
-        if(currentLocation != null && !currentLocation.isEmpty()) {
+        if (currentLocation != null && !currentLocation.isEmpty()) {
             var coords = currentLocation.get(0).getCoords();
             startCoords = new Coordinate(coords.getRight(), coords.getLeft());
         }
