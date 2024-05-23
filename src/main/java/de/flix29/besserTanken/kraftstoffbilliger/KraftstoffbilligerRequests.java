@@ -7,7 +7,6 @@ import de.flix29.besserTanken.openDataSoft.OpenDataSoftRequests;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,18 +36,13 @@ public class KraftstoffbilligerRequests {
             return Collections.emptyList();
         }
 
-        return locations.stream()
-                .map(Location::getCoords)
-                .map(coords -> {
-                    try {
-                        return kraftstoffbilligerJob.getFuelStations(fuelType, coords.getLeft(), coords.getRight(), radius);
-                    } catch (IOException | InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .flatMap(Collection::stream)
-                .distinct()
-                .toList();
+        var coords = locations.get(0).getCoords();
+
+        try {
+            return kraftstoffbilligerJob.getFuelStations(fuelType, coords.getLeft(), coords.getRight(), radius);
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
