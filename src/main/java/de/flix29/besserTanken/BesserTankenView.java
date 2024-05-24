@@ -142,7 +142,7 @@ public class BesserTankenView extends VerticalLayout {
 
         tabSheet = new TabSheet();
         tabSheet.add(tab1, fuelStationsLayout);
-        tabSheet.add(tab2, mapComponent);
+        tabSheet.add(tab2, new LazyComponent(() -> mapComponent));
         tabSheet.setWidthFull();
         tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
         tabSheet.addSelectedChangeListener(event -> {
