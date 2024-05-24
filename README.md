@@ -1,6 +1,6 @@
 # BesserTanken
 
-### > Available at: <a href="bessertanken.flix29.de" target="_blank">bessertanken.flix29.de</a>
+### > Available at: <a href="www.bessertanken.flix29.de" target="_blank">bessertanken.flix29.de</a>
 
 ## Get the cheapest gas prices in your area.
 
