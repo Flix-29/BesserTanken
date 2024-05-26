@@ -36,10 +36,10 @@ public class KraftstoffbilligerRequests {
             return Collections.emptyList();
         }
 
-        var coords = locations.get(0).getCoords();
+        var location = locations.get(0);
 
         try {
-            return kraftstoffbilligerJob.getFuelStations(fuelType, coords.getLeft(), coords.getRight(), radius);
+            return kraftstoffbilligerJob.getFuelStations(fuelType, location.getLatitude(), location.getLongitude(), radius);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }

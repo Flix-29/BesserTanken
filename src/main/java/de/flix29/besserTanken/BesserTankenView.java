@@ -18,7 +18,6 @@ import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStation;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelType;
 import de.flix29.besserTanken.model.openDataSoft.Location;
 import jakarta.annotation.security.PermitAll;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,10 +39,10 @@ public class BesserTankenView extends VerticalLayout {
     private final Select<String> useCurrentLocationSelect;
 
     private List<FuelStation> fuelStations;
-    private Select<String> orderBySelect;
+    private final Select<String> orderBySelect;
     private boolean useCurrentLocation;
     private Location currentLocation;
-    private Select<String> resultLimitSelect;
+    private final Select<String> resultLimitSelect;
 
     public BesserTankenView() {
         var radiusField = new NumberField("Enter radius (km): ", "5");
@@ -139,12 +138,13 @@ public class BesserTankenView extends VerticalLayout {
         }
 
         currentLocation = new Location();
-        currentLocation.setCoords(Pair.of(coords[0], coords[1]));
+        currentLocation.setLatitude(coords[0]);
+        currentLocation.setLongitude(coords[1]);
     }
 
     private List<FuelStation> performSearch(Location location, String place, FuelType fuelType, Integer radius) {
         fuelStations = new ArrayList<>();
-        if (location != null && location.getCoords() != null) {
+        if (location != null) {
             LOGGER.info("Searching location: {} with fuel type: {} and radius: {}.", location, fuelType, radius);
             fuelStations = kraftstoffbilligerRequests.getFuelStationsByLocation(List.of(location), fuelType, radius);
         } else if (!place.isEmpty()) {
