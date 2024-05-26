@@ -56,18 +56,17 @@ public class BesserTankenView extends VerticalLayout {
     private final VerticalLayout fuelStationsLayout = new VerticalLayout();
     private final VerticalLayout mapComponent = new VerticalLayout();
 
+    private List<FuelStation> foundFuelStations;
+    private List<FuelStation> displayedFuelStations;
+    private boolean useCurrentLocation;
+    private List<Location> currentLocation;
+
     private Map map;
     private final Select<String> useCurrentLocationSelect;
     private final Select<String> orderBySelect;
     private final Select<String> resultLimitSelect;
     private final TabSheet tabSheet;
 
-    private List<FuelStation> foundFuelStations;
-    private List<FuelStation> displayedFuelStations;
-    private final Select<String> orderBySelect;
-    private boolean useCurrentLocation;
-    private List<Location> currentLocation;
-    private final Select<String> resultLimitSelect;
 
     public BesserTankenView(KraftstoffbilligerRequests kraftstoffbilligerRequests, OpenDataSoftRequests openDataSoftRequests) {
         this.kraftstoffbilligerRequests = kraftstoffbilligerRequests;
@@ -322,8 +321,8 @@ public class BesserTankenView extends VerticalLayout {
 
         var startCoords = new Coordinate(13.4, 52.5);
         if (currentLocation != null && !currentLocation.isEmpty()) {
-            var coords = currentLocation.get(0).getCoords();
-            startCoords = new Coordinate(coords.getRight(), coords.getLeft());
+            var location = currentLocation.get(0);
+            startCoords = new Coordinate(location.getLongitude(), location.getLatitude());
         }
 
         var optionsRed = new Icon.Options();
