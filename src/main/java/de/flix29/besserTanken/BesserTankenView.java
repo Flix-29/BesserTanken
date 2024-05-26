@@ -12,6 +12,7 @@ import com.vaadin.flow.component.map.configuration.Coordinate;
 import com.vaadin.flow.component.map.configuration.feature.MarkerFeature;
 import com.vaadin.flow.component.map.configuration.style.Icon;
 import com.vaadin.flow.component.map.configuration.style.TextStyle;
+import com.vaadin.flow.component.map.events.MapFeatureClickEvent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -43,6 +44,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @PageTitle("BesserTanken")
 @Route(value = "")
@@ -325,11 +327,7 @@ public class BesserTankenView extends VerticalLayout {
             startCoords = new Coordinate(location.getLongitude(), location.getLatitude());
         }
 
-        var optionsRed = new Icon.Options();
-        optionsRed.setImg(new StreamResource("locationdot-lightcoral-duotone.png", () -> getClass().getResourceAsStream("/images/small_locationdot-lightcoral-duotone.png")));
-        optionsRed.setAnchor(new Icon.Anchor(0.5, 0.8));
-
-        var locationMarker = new MarkerFeature(startCoords, new Icon(optionsRed));
+        var locationMarker = new MarkerFeature(startCoords, getRedIcon());
         locationMarker.setText("Your location");
         locationMarker.setDraggable(false);
 
@@ -341,14 +339,10 @@ public class BesserTankenView extends VerticalLayout {
             return;
         }
 
-        var optionsBlue = new Icon.Options();
-        optionsBlue.setImg(new StreamResource("locationdot-cornflowerblue-duotone.png", () -> getClass().getResourceAsStream("/images/small_locationdot-cornflowerblue-duotone.png")));
-        optionsBlue.setAnchor(new Icon.Anchor(0.5, 0.8));
-
         displayedFuelStations = kraftstoffbilligerRequests.addDetailsToFuelStations(displayedFuelStations);
         displayedFuelStations.forEach(fuelStation -> {
             var coords = new Coordinate(fuelStation.getDetails().getLon(), fuelStation.getDetails().getLat());
-            var marker = new MarkerFeature(coords, new Icon(optionsBlue));
+            var marker = new MarkerFeature(coords, getBlueIcon());
             marker.setText(fuelStation.getName());
             marker.setDraggable(false);
 
@@ -365,33 +359,52 @@ public class BesserTankenView extends VerticalLayout {
                     .findFirst();
 
             removeComponentByClassName(this, "tooltip");
-            Div tooltip = new Div();
-            tooltip.addClassName("tooltip");
-
-            fuelStation.ifPresent(fuelStationItem -> {
-                FuelStationDetail details = fuelStationItem.getDetails();
-
-                tooltip.getStyle().setPosition(Position.ABSOLUTE);
-                tooltip.getStyle().setBackgroundColor("var(--lumo-base-color)");
-                tooltip.getStyle().setBorder("2px solid black");
-                tooltip.getStyle().setBorderRadius("10px");
-                tooltip.getStyle().setPadding("5px");
-
-                tooltip.add(new H3(fuelStationItem.getName()));
-                tooltip.add(new Paragraph(details.getAddress() + ", " + details.getCity()));
-                tooltip.add(new Paragraph("Price: " + fuelStationItem.getPrice() + "€"));
-                tooltip.add(new Paragraph("Distance: " + fuelStationItem.getDistance() + " km"));
-
-                double x = event.getMouseDetails().getAbsoluteX();
-                double y = event.getMouseDetails().getAbsoluteY();
-                tooltip.getStyle().set("left", x + "px");
-                tooltip.getStyle().set("top", y + "px");
-            });
+            var tooltip = getTooltip(event, fuelStation);
 
             add(tooltip);
         });
 
         mapComponent.add(map);
+    }
+
+    private Icon getRedIcon() {
+        var optionsRed = new Icon.Options();
+        optionsRed.setImg(new StreamResource("locationdot-lightcoral-duotone.png", () -> getClass().getResourceAsStream("/images/small_locationdot-lightcoral-duotone.png")));
+        optionsRed.setAnchor(new Icon.Anchor(0.5, 0.8));
+        return new Icon(optionsRed);
+    }
+
+    private Icon getBlueIcon() {
+        var optionsBlue = new Icon.Options();
+        optionsBlue.setImg(new StreamResource("locationdot-cornflowerblue-duotone.png", () -> getClass().getResourceAsStream("/images/small_locationdot-cornflowerblue-duotone.png")));
+        optionsBlue.setAnchor(new Icon.Anchor(0.5, 0.8));
+        return new Icon(optionsBlue);
+    }
+
+    private Div getTooltip(MapFeatureClickEvent event, Optional<FuelStation> fuelStation) {
+        Div tooltip = new Div();
+        tooltip.addClassName("tooltip");
+
+        fuelStation.ifPresent(fuelStationItem -> {
+            FuelStationDetail details = fuelStationItem.getDetails();
+
+            tooltip.getStyle().setPosition(Position.ABSOLUTE);
+            tooltip.getStyle().setBackgroundColor("var(--lumo-base-color)");
+            tooltip.getStyle().setBorder("2px solid black");
+            tooltip.getStyle().setBorderRadius("10px");
+            tooltip.getStyle().setPadding("5px");
+
+            tooltip.add(new H3(fuelStationItem.getName()));
+            tooltip.add(new Paragraph(details.getAddress() + ", " + details.getCity()));
+            tooltip.add(new Paragraph("Price: " + fuelStationItem.getPrice() + "€"));
+            tooltip.add(new Paragraph("Distance: " + fuelStationItem.getDistance() + " km"));
+
+            double x = event.getMouseDetails().getAbsoluteX();
+            double y = event.getMouseDetails().getAbsoluteY();
+            tooltip.getStyle().set("left", x + "px");
+            tooltip.getStyle().set("top", y + "px");
+        });
+        return tooltip;
     }
 
     private <T extends Component> void removeComponentByClassName(T parent, String className) {
