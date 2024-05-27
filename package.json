@@ -3,7 +3,7 @@
   "license": "UNLICENSED",
   "type": "module",
   "dependencies": {
-    "@flowingcode/font-awesome-iron-iconset": "5.1.0",
+    "@flowingcode/font-awesome-iron-iconset": "5.1.1",
     "@polymer/polymer": "3.5.1",
     "@vaadin/a11y-base": "24.3.13",
     "@vaadin/accordion": "24.3.13",
@@ -100,7 +100,7 @@
   },
   "vaadin": {
     "dependencies": {
-      "@flowingcode/font-awesome-iron-iconset": "5.1.0",
+      "@flowingcode/font-awesome-iron-iconset": "5.1.1",
       "@polymer/polymer": "3.5.1",
       "@vaadin/a11y-base": "24.3.13",
       "@vaadin/accordion": "24.3.13",
