@@ -445,7 +445,11 @@ public class BesserTankenView extends VerticalLayout {
         AtomicReference<FuelStation> fuelStation = new AtomicReference<>(new FuelStation());
         button.addClickListener(event -> {
             fuelStation.set(calculateEfficiency(consumption));
-            efficiencyLayout.add(fuelStation.get().getName());
+
+            FuelStation fuelStation1 = fuelStation.get();
+            efficiencyLayout.add(fuelStation1.getName() + ", ");
+            efficiencyLayout.add(fuelStation1.getAddress() + ", ");
+            efficiencyLayout.add(String.valueOf(fuelStation1.getPrice()));
         });
 
         efficiencyLayout.add(consumption);
@@ -453,7 +457,10 @@ public class BesserTankenView extends VerticalLayout {
     }
 
     private FuelStation calculateEfficiency(NumberField consumption) {
-        var fuelStations = kraftstoffbilligerRequests.getFuelStationsByLocation(currentLocation, FuelType.fromName(fuelTypeSelect.getValue()), 50);
+        var fuelStations = kraftstoffbilligerRequests
+                .getFuelStationsByLocation(currentLocation, FuelType.fromName(fuelTypeSelect.getValue()), 5).stream()
+                .filter(fuelStation -> fuelStation.getPrice() != 0.0)
+                .toList();
         return efficiencyService.calculateMostEfficientFuelStation(consumption.getValue(), fuelStations);
     }
 }
