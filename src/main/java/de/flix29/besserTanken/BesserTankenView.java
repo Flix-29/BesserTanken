@@ -10,6 +10,8 @@ import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.map.Map;
 import com.vaadin.flow.component.map.configuration.Coordinate;
 import com.vaadin.flow.component.map.configuration.feature.MarkerFeature;
+import com.vaadin.flow.component.map.configuration.layer.TileLayer;
+import com.vaadin.flow.component.map.configuration.source.XYZSource;
 import com.vaadin.flow.component.map.configuration.style.Icon;
 import com.vaadin.flow.component.map.configuration.style.TextStyle;
 import com.vaadin.flow.component.map.events.MapFeatureClickEvent;
@@ -30,7 +32,6 @@ import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import de.flix29.BesserTanken;
 import de.flix29.besserTanken.kraftstoffbilliger.KraftstoffbilligerRequests;
-import de.flix29.besserTanken.mapBox.direction.DirectionApiJob;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStation;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStationDetail;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelType;
@@ -56,7 +57,6 @@ public class BesserTankenView extends VerticalLayout {
     private final Logger LOGGER = LoggerFactory.getLogger(BesserTankenView.class);
     private final KraftstoffbilligerRequests kraftstoffbilligerRequests;
     private final OpenDataSoftRequests openDataSoftRequests;
-    private final DirectionApiJob directionApiJob;
 
     private final VerticalLayout fuelStationsLayout = new VerticalLayout();
     private final VerticalLayout mapComponent = new VerticalLayout();
@@ -74,10 +74,9 @@ public class BesserTankenView extends VerticalLayout {
     private final TabSheet tabSheet;
 
 
-    public BesserTankenView(KraftstoffbilligerRequests kraftstoffbilligerRequests, OpenDataSoftRequests openDataSoftRequests, DirectionApiJob directionApiJob) {
+    public BesserTankenView(KraftstoffbilligerRequests kraftstoffbilligerRequests, OpenDataSoftRequests openDataSoftRequests) {
         this.kraftstoffbilligerRequests = kraftstoffbilligerRequests;
         this.openDataSoftRequests = openDataSoftRequests;
-        this.directionApiJob = directionApiJob;
 
         radiusField = new NumberField("Enter radius (km): ", "5");
         radiusField.setSuffixComponent(new Div("km"));
@@ -317,28 +316,11 @@ public class BesserTankenView extends VerticalLayout {
 
     private void renderMap() {
         mapComponent.removeAll();
+
         map = new Map();
-
-//        XYZSource.Options sourceOptions = new XYZSource.Options();
-//        // set the URL pattern for the map service containing x, y, and z
-//        // parameters
-//        // mapbox requires an access token, register on
-//        // mapbox.com to get one, and place it in the line below
-//        sourceOptions.setUrl(
-//                "https://api.mapbox.com/styles/v1/mapbox/standard-v12/{z}/{x}/{y}.jpg90?access_token=pk.eyJ1IjoiZmxpeDI5IiwiYSI6ImNsd3F2azkwNTA2N28yaXF2cGtuNGk4ZzkifQ.baTjWHcFg5o06ebH1g3lxQ");
-//        // using a map service usually requires setting
-//        // attributions with copyright notices
-//        sourceOptions.setAttributions(List.of(
-//                "<a href=\"https://www.mapbox.com/about/maps/\">© Mapbox</a>",
-//                "<a href=\"https://www.openstreetmap.org/about/\">© OpenStreetMap</a>"));
-//        sourceOptions.setAttributionsCollapsible(false);
-//        XYZSource source = new XYZSource(sourceOptions);
-//        TileLayer tileLayer = new TileLayer();
-//        tileLayer.setSource(source);
-//        map.setBackgroundLayer(tileLayer);
-
         map.setHeight("800px");
         map.setZoom(13);
+        loadBackground();
 
         map.addViewMoveEndEventListener(event -> {
             var textStyle = new TextStyle();
@@ -397,6 +379,20 @@ public class BesserTankenView extends VerticalLayout {
         });
 
         mapComponent.add(map);
+    }
+
+    private void loadBackground() {
+        XYZSource.Options sourceOptions = new XYZSource.Options();
+        sourceOptions.setUrl(
+                "https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZmxpeDI5IiwiYSI6ImNsd3F2azkwNTA2N28yaXF2cGtuNGk4ZzkifQ.baTjWHcFg5o06ebH1g3lxQ");
+        sourceOptions.setAttributions(List.of(
+                "<a href=\"https://www.mapbox.com/about/maps/\">© Mapbox</a>",
+                "<a href=\"https://www.openstreetmap.org/about/\">© OpenStreetMap</a>"));
+        sourceOptions.setAttributionsCollapsible(false);
+        XYZSource source = new XYZSource(sourceOptions);
+        TileLayer tileLayer = new TileLayer();
+        tileLayer.setSource(source);
+        map.setBackgroundLayer(tileLayer);
     }
 
     private Icon getRedIcon() {
