@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @PageTitle("BesserTanken")
 @Route(value = "")
@@ -440,10 +441,19 @@ public class BesserTankenView extends VerticalLayout {
         var consumption = new NumberField("Consumption", "6.5");
         consumption.setSuffixComponent(new Span("l/100km"));
 
-        var fuelStations = kraftstoffbilligerRequests.getFuelStationsByLocation(currentLocation, FuelType.fromName(fuelTypeSelect.getValue()), 50);
-        var fuelStation = efficiencyService.calculateMostEfficientFuelStation(consumption.getValue(), fuelStations);
+        var button = new Button("go");
+        AtomicReference<FuelStation> fuelStation = new AtomicReference<>(new FuelStation());
+        button.addClickListener(event -> {
+            fuelStation.set(calculateEfficiency(consumption));
+            efficiencyLayout.add(fuelStation.get().getName());
+        });
 
         efficiencyLayout.add(consumption);
-        efficiencyLayout.add(fuelStation.getName());
+        efficiencyLayout.add(button);
+    }
+
+    private FuelStation calculateEfficiency(NumberField consumption) {
+        var fuelStations = kraftstoffbilligerRequests.getFuelStationsByLocation(currentLocation, FuelType.fromName(fuelTypeSelect.getValue()), 50);
+        return efficiencyService.calculateMostEfficientFuelStation(consumption.getValue(), fuelStations);
     }
 }
