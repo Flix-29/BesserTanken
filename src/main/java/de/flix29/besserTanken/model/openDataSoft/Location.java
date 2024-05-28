@@ -9,11 +9,15 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Location {
+public class Location extends SimpleLocation{
 
     private int plz;
     private String name;
-    private double latitude;
-    private double longitude;
+
+    public Location(int plz, String name, double latitude, double longitude) {
+        super(latitude, longitude);
+        this.plz = plz;
+        this.name = name;
+    }
 
 }

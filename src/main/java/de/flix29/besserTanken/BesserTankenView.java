@@ -41,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -225,10 +224,6 @@ public class BesserTankenView extends VerticalLayout {
 
         LOGGER.info("Searching location: {} with fuel type: {} and radius: {}.", currentLocation.toString(), fuelType, radius);
         foundFuelStations = kraftstoffbilligerRequests.getFuelStationsByLocation(currentLocation, fuelType, radius);
-        foundFuelStations.forEach(fuelStation -> {
-            var location = new Location(0, fuelStation.getCity(), fuelStation.getDetails().getLat(), fuelStation.getDetails().getLon());
-            fuelStation.setDistance(BigDecimal.valueOf(directionApiRequests.getRealDistance(currentLocation.get(0), location)));
-        });
         LOGGER.info("Found {} fuel stations.", foundFuelStations.size());
 
         return foundFuelStations;
