@@ -4,30 +4,30 @@ import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStation;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class EfficiencyService {
 
-    public FuelStation calculateMostEfficientFuelStation(double consumption, List<FuelStation> fuelStations) {
-        var sortedFuelStations = fuelStations.stream()
-                .filter(Objects::nonNull)
-                .filter(fuelStation -> fuelStation.getPrice() != 0.0)
-                .sorted((fuelStation1, fuelStation2) -> fuelStation2.getDistance().compareTo(fuelStation1.getDistance()))
+    public FuelStation calculateMostEfficientFuelStation(double consumptionPer100Km, List<FuelStation> fuelStations) {
+        var map = new HashMap<String, Double>();
+
+        fuelStations.forEach(fuelStation -> {
+            var consumption = fuelStation.getDistance().doubleValue() * (consumptionPer100Km / 100);
+            var price = fuelStation.getPrice() * consumption;
+            map.put(fuelStation.getId(), price);
+        });
+
+        var sorted = map.entrySet().stream()
+                .sorted(Comparator.comparingDouble(HashMap.Entry::getValue))
+                .map(HashMap.Entry::getKey)
                 .toList();
 
-        var minPrice = sortedFuelStations.stream()
-                .min(Comparator.comparingDouble(FuelStation::getPrice))
-                .get();
+        var first = sorted.get(0);
 
-        var maxPrice = sortedFuelStations.stream()
-                .min(Comparator.comparingDouble(FuelStation::getPrice))
-                .get();
+        List<FuelStation> list = fuelStations.stream().filter(fuelStation -> fuelStation.getId().equals(first)).toList();
+        return list.get(0);
 
-        if (sortedFuelStations.get(0).equals(minPrice)) {
-            return sortedFuelStations.get(0);
-        }
-        return sortedFuelStations.get(0);
     }
 }
