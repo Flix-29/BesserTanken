@@ -10,6 +10,8 @@ import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.map.Map;
 import com.vaadin.flow.component.map.configuration.Coordinate;
 import com.vaadin.flow.component.map.configuration.feature.MarkerFeature;
+import com.vaadin.flow.component.map.configuration.layer.TileLayer;
+import com.vaadin.flow.component.map.configuration.source.XYZSource;
 import com.vaadin.flow.component.map.configuration.style.Icon;
 import com.vaadin.flow.component.map.configuration.style.TextStyle;
 import com.vaadin.flow.component.map.events.MapFeatureClickEvent;
@@ -316,9 +318,11 @@ public class BesserTankenView extends VerticalLayout {
 
     private void renderMap() {
         mapLayout.removeAll();
+
         map = new Map();
         map.setHeight("800px");
         map.setZoom(13);
+        loadBackground();
 
         map.addViewMoveEndEventListener(event -> {
             var textStyle = new TextStyle();
@@ -377,6 +381,20 @@ public class BesserTankenView extends VerticalLayout {
         });
 
         mapLayout.add(map);
+    }
+
+    private void loadBackground() {
+        XYZSource.Options sourceOptions = new XYZSource.Options();
+        sourceOptions.setUrl(
+                "https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZmxpeDI5IiwiYSI6ImNsd3F2azkwNTA2N28yaXF2cGtuNGk4ZzkifQ.baTjWHcFg5o06ebH1g3lxQ");
+        sourceOptions.setAttributions(List.of(
+                "<a href=\"https://www.mapbox.com/about/maps/\">© Mapbox</a>",
+                "<a href=\"https://www.openstreetmap.org/about/\">© OpenStreetMap</a>"));
+        sourceOptions.setAttributionsCollapsible(false);
+        XYZSource source = new XYZSource(sourceOptions);
+        TileLayer tileLayer = new TileLayer();
+        tileLayer.setSource(source);
+        map.setBackgroundLayer(tileLayer);
     }
 
     private Icon getRedIcon() {
