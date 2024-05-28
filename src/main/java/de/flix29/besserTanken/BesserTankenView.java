@@ -29,7 +29,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import de.flix29.besserTanken.kraftstoffbilliger.KraftstoffbilligerRequests;
-import de.flix29.besserTanken.mapBox.direction.DirectionApiRequests;
+import de.flix29.besserTanken.mapBox.direction.DirectionApiJob;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStation;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStationDetail;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelType;
@@ -55,7 +55,7 @@ public class BesserTankenView extends VerticalLayout {
     private final Logger LOGGER = LoggerFactory.getLogger(BesserTankenView.class);
     private final KraftstoffbilligerRequests kraftstoffbilligerRequests;
     private final OpenDataSoftRequests openDataSoftRequests;
-    private final DirectionApiRequests directionApiRequests;
+    private final DirectionApiJob directionApiJob;
 
     private final VerticalLayout fuelStationsLayout = new VerticalLayout();
     private final VerticalLayout mapComponent = new VerticalLayout();
@@ -72,10 +72,10 @@ public class BesserTankenView extends VerticalLayout {
     private final TabSheet tabSheet;
 
 
-    public BesserTankenView(KraftstoffbilligerRequests kraftstoffbilligerRequests, OpenDataSoftRequests openDataSoftRequests, DirectionApiRequests directionApiRequests) {
+    public BesserTankenView(KraftstoffbilligerRequests kraftstoffbilligerRequests, OpenDataSoftRequests openDataSoftRequests, DirectionApiJob directionApiJob) {
         this.kraftstoffbilligerRequests = kraftstoffbilligerRequests;
         this.openDataSoftRequests = openDataSoftRequests;
-        this.directionApiRequests = directionApiRequests;
+        this.directionApiJob = directionApiJob;
 
         var radiusField = new NumberField("Enter radius (km): ", "5");
         radiusField.setSuffixComponent(new Div("km"));
