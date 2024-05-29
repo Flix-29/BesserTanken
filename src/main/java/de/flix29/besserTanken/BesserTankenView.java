@@ -392,9 +392,11 @@ public class BesserTankenView extends VerticalLayout {
     }
 
     private void loadBackground() {
+        final String apiKey = System.getenv().getOrDefault("MAP_KEY", BesserTanken.getEnv().getProperty("map.apikey"));
+
         XYZSource.Options sourceOptions = new XYZSource.Options();
         sourceOptions.setUrl(
-                "https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZmxpeDI5IiwiYSI6ImNsd3F2azkwNTA2N28yaXF2cGtuNGk4ZzkifQ.baTjWHcFg5o06ebH1g3lxQ");
+                "https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=" + apiKey);
         sourceOptions.setAttributions(List.of(
                 "<a href=\"https://www.mapbox.com/about/maps/\">© Mapbox</a>",
                 "<a href=\"https://www.openstreetmap.org/about/\">© OpenStreetMap</a>"));
