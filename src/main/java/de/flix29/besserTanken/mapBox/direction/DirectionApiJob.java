@@ -30,7 +30,7 @@ public class DirectionApiJob {
 
 
     private String buildUrl(double startLatitude, double startLongitude, double endLatitude, double endLongitude) {
-        final String apiKey = System.getenv().getOrDefault("DIRECTIONS_KEY", BesserTanken.getEnv().getProperty("directions.apikey"));
+        final var apiKey = BesserTanken.getSecrets().getOrDefault("directionsKey", "");
         return baseUrl
                 .replace("$startLat$", String.valueOf(startLatitude))
                 .replace("$startLon$", String.valueOf(startLongitude))

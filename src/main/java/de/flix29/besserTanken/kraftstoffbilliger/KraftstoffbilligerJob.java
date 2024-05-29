@@ -56,7 +56,7 @@ public class KraftstoffbilligerJob {
     }
 
     private HttpResponse<String> sendHttpRequestWithResponse(Endpoints endpoint, HTTPMethod httpMethod, Map<String, String> parameter) throws IOException, InterruptedException {
-        var apiKey = System.getenv().getOrDefault("API_KEY", BesserTanken.getEnv().getProperty("bessertanken.apikey"));
+        final var apiKey = BesserTanken.getSecrets().getOrDefault("bessertankenKey", "");
         var requestBuilder = HttpRequest.newBuilder()
                 .uri(URI.create(endpoint.getUrl()))
                 .header("apikey", apiKey);

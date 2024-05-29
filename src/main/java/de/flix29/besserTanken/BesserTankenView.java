@@ -392,7 +392,7 @@ public class BesserTankenView extends VerticalLayout {
     }
 
     private void loadBackground() {
-        final String apiKey = System.getenv().getOrDefault("MAP_KEY", BesserTanken.getEnv().getProperty("map.apikey"));
+        final var apiKey = BesserTanken.getSecrets().getOrDefault("mapKey", "");
 
         XYZSource.Options sourceOptions = new XYZSource.Options();
         sourceOptions.setUrl(
