@@ -77,7 +77,6 @@ public class BesserTankenView extends VerticalLayout {
     private final Select<String> fuelTypeSelect;
     private final TabSheet tabSheet;
 
-
     public BesserTankenView(KraftstoffbilligerRequests kraftstoffbilligerRequests, OpenDataSoftRequests openDataSoftRequests, EfficiencyService efficiencyService) {
         this.kraftstoffbilligerRequests = kraftstoffbilligerRequests;
         this.openDataSoftRequests = openDataSoftRequests;
