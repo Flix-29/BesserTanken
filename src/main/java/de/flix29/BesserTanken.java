@@ -23,9 +23,9 @@ public class BesserTanken implements AppShellConfigurator {
 	public static void main(String[] args) {
 		env = SpringApplication.run(BesserTanken.class, args).getEnvironment();
 
-		secrets.put("mapKey", System.getenv().getOrDefault("MAP_KEY", BesserTanken.getEnv().getProperty("map.apikey")));
-		secrets.put("directionsKey", System.getenv().getOrDefault("DIRECTIONS_KEY", BesserTanken.getEnv().getProperty("directions.apikey")));
-		secrets.put("bessertankenKey", System.getenv().getOrDefault("API_KEY", BesserTanken.getEnv().getProperty("bessertanken.apikey")));
+		secrets.put("mapKey", System.getenv().getOrDefault("MAP_KEY", getEnv().getProperty("map.apikey")));
+		secrets.put("directionsKey", System.getenv().getOrDefault("DIRECTIONS_KEY", getEnv().getProperty("directions.apikey")));
+		secrets.put("bessertankenKey", System.getenv().getOrDefault("API_KEY", getEnv().getProperty("bessertanken.apikey")));
 	}
 
 }
