@@ -28,6 +28,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import de.flix29.BesserTanken;
 import de.flix29.besserTanken.kraftstoffbilliger.KraftstoffbilligerRequests;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStation;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStationDetail;
@@ -155,8 +156,14 @@ public class BesserTankenView extends VerticalLayout {
             }
         });
 
+        var version = new Span(BesserTanken.getEnv().getProperty("bessertanken.version"));
+        version.getStyle().set("padding-bottom", "3px");
+        version.getStyle().setColor("var(--lumo-contrast-70pct)");
+        var header = new HorizontalLayout(new H1("BesserTanken"), version);
+        header.setAlignItems(Alignment.END);
+
         add(
-                new H1("BesserTanken"),
+                header,
                 horizontalLayout,
                 new Hr(),
                 tabSheet
