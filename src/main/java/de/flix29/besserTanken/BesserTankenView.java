@@ -161,11 +161,11 @@ public class BesserTankenView extends VerticalLayout {
         tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
         tabSheet.addSelectedChangeListener(event -> {
             if (event.getSelectedTab().equals(tab1)) {
-                removeComponentByClassName(this, "tooltip");
+                removeComponentsByClassName(this, "tooltip");
             } else if (event.getSelectedTab().equals(tab2)) {
                 renderMap();
             } else if (event.getSelectedTab().equals(tab3)) {
-                removeComponentByClassName(this, "tooltip");
+                removeComponentsByClassName(this, "tooltip");
                 renderEfficiencyCalc();
             }
         });
@@ -240,7 +240,7 @@ public class BesserTankenView extends VerticalLayout {
     }
 
     private void displayFuelStations() {
-        removeComponentByClassName(fuelStationsLayout, "temp");
+        removeComponentsByClassName(fuelStationsLayout, "temp");
 
         if (foundFuelStations == null) return;
 
@@ -373,7 +373,7 @@ public class BesserTankenView extends VerticalLayout {
             map.getFeatureLayer().addFeature(marker);
         });
 
-        map.addClickEventListener(event -> removeComponentByClassName(this, "tooltip"));
+        map.addClickEventListener(event -> removeComponentsByClassName(this, "tooltip"));
         map.addFeatureClickListener(event -> {
             var marker = (MarkerFeature) event.getFeature();
             var coordinates = marker.getCoordinates();
@@ -382,7 +382,7 @@ public class BesserTankenView extends VerticalLayout {
                             fuelStationsItem.getDetails().getLon() == coordinates.getX())
                     .findFirst();
 
-            removeComponentByClassName(this, "tooltip");
+            removeComponentsByClassName(this, "tooltip");
             var tooltip = getTooltip(event, fuelStation);
 
             add(tooltip);
@@ -449,9 +449,9 @@ public class BesserTankenView extends VerticalLayout {
         return tooltip;
     }
 
-    private <T extends Component> void removeComponentByClassName(T parent, String className) {
+    private <T extends Component> void removeComponentsByClassName(T parent, String className) {
         parent.getChildren()
-                .filter(child -> child.hasClassName(className))
+                .filter(child -> child.getClassNames().stream().anyMatch(name -> name.contains(className)))
                 .forEach(Component::removeFromParent);
     }
 
@@ -466,18 +466,24 @@ public class BesserTankenView extends VerticalLayout {
     }
 
     private void renderEfficiencyCalc() {
+        removeComponentsByClassName(efficiencyLayout, "efficiencyCalc");
+
         var consumption = new NumberField("Consumption", "6.5");
         consumption.setSuffixComponent(new Span("l/100km"));
+        consumption.addClassName("efficiencyCalc");
 
         var button = new Button("go");
+        button.addClassName("efficiencyCalc");
         AtomicReference<FuelStation> fuelStation = new AtomicReference<>(new FuelStation());
         button.addClickListener(event -> {
+            removeComponentsByClassName(efficiencyLayout, "efficiencyCalc_result");
             fuelStation.set(calculateEfficiency(consumption));
 
             FuelStation fuelStation1 = fuelStation.get();
-            efficiencyLayout.add(fuelStation1.getName() + ", ");
-            efficiencyLayout.add(fuelStation1.getAddress() + ", ");
-            efficiencyLayout.add(String.valueOf(fuelStation1.getPrice()));
+            var paragraph = new Paragraph(fuelStation1.getName() + ",\n" + fuelStation1.getAddress() + ",\n" + fuelStation1.getPrice());
+            paragraph.addClassName("efficiencyCalc_result");
+
+            efficiencyLayout.add(paragraph);
         });
 
         efficiencyLayout.add(consumption);
