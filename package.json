@@ -81,7 +81,7 @@
     "proj4": "2.11.0"
   },
   "devDependencies": {
-    "@rollup/plugin-replace": "5.0.5",
+    "@rollup/plugin-replace": "5.0.7",
     "@rollup/pluginutils": "5.1.0",
     "@vitejs/plugin-react": "4.3.0",
     "@vitejs/plugin-react-swc": "3.7.0",
@@ -178,7 +178,7 @@
       "proj4": "2.11.0"
     },
     "devDependencies": {
-      "@rollup/plugin-replace": "5.0.5",
+      "@rollup/plugin-replace": "5.0.7",
       "@rollup/pluginutils": "5.1.0",
       "@vitejs/plugin-react": "4.3.0",
       "@vitejs/plugin-react-swc": "3.7.0",
