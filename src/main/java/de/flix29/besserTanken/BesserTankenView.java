@@ -1,10 +1,7 @@
 package de.flix29.besserTanken;
 
 import com.flowingcode.vaadin.addons.fontawesome.FontAwesome;
-import com.vaadin.flow.component.ClientCallable;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.map.Map;
@@ -42,13 +39,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.*;
 
 @PageTitle("BesserTanken")
 @Route(value = "")
@@ -62,7 +57,7 @@ public class BesserTankenView extends VerticalLayout {
 
     private final VerticalLayout fuelStationsLayout = new VerticalLayout();
     private final VerticalLayout mapLayout = new VerticalLayout();
-    private final VerticalLayout efficiencyLayout = new VerticalLayout();
+    private final HorizontalLayout efficiencyLayout = new HorizontalLayout();
 
     private List<FuelStation> foundFuelStations;
     private List<FuelStation> displayedFuelStations;
@@ -464,29 +459,44 @@ public class BesserTankenView extends VerticalLayout {
         consumption.setSuffixComponent(new Span("l/100km"));
         consumption.addClassName("efficiencyCalc");
 
+        var amountGas = new NumberField("Amount of Gas", "42.5");
+        amountGas.setSuffixComponent(new Span("l"));
+        amountGas.addClassName("efficiencyCalc");
+
         var button = new Button("go");
         button.addClassName("efficiencyCalc");
-        AtomicReference<FuelStation> fuelStation = new AtomicReference<>(new FuelStation());
+        var fuelStations = new HashMap<FuelStation, Double>();
+        var resultsLayout = new VerticalLayout();
+        resultsLayout.addClassName("efficiencyCalc");
         button.addClickListener(event -> {
             removeComponentsByClassName(efficiencyLayout, "efficiencyCalc_result");
-            fuelStation.set(calculateEfficiency(consumption));
+            fuelStations.putAll(calculateEfficiency(consumption.getValue(), amountGas.getValue()));
 
-            FuelStation fuelStation1 = fuelStation.get();
-            var paragraph = new Paragraph(fuelStation1.getName() + ",\n" + fuelStation1.getAddress() + ",\n" + fuelStation1.getPrice());
-            paragraph.addClassName("efficiencyCalc_result");
+            fuelStations.entrySet().stream().limit(3).forEach(entry -> {
+                var fuelStation = entry.getKey();
+                var price = entry.getValue();
 
-            efficiencyLayout.add(paragraph);
+                var bigDecimal = new BigDecimal(price).setScale(2, RoundingMode.HALF_UP);
+                var paragraph = new Paragraph(
+                        new Paragraph(fuelStation.getName() + ", " + fuelStation.getAddress()),
+                        new Text(fuelStation.getPrice() + "€/l, total: " + bigDecimal + "€")
+                );
+                resultsLayout.add(paragraph);
+            });
         });
 
-        efficiencyLayout.add(consumption);
-        efficiencyLayout.add(button);
+        HorizontalLayout horizontalLayout = new HorizontalLayout(consumption, amountGas);
+        VerticalLayout verticalLayout = new VerticalLayout(horizontalLayout, button);
+        verticalLayout.addClassName("efficiencyCalc");
+        efficiencyLayout.add(verticalLayout, resultsLayout);
     }
 
-    private FuelStation calculateEfficiency(NumberField consumption) {
+    private java.util.Map<FuelStation, Double> calculateEfficiency(double consumption, double amountGas) {
         var fuelStations = kraftstoffbilligerRequests
                 .getFuelStationsByLocation(currentLocation, FuelType.fromName(fuelTypeSelect.getValue()), 5).stream()
                 .filter(fuelStation -> fuelStation.getPrice() != 0.0)
                 .toList();
-        return efficiencyService.calculateMostEfficientFuelStation(consumption.getValue(), fuelStations);
+
+        return efficiencyService.calculateMostEfficientFuelStation(consumption, amountGas, fuelStations);
     }
 }
