@@ -3,7 +3,6 @@ package de.flix29.besserTanken;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStation;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +12,10 @@ import java.util.stream.Collectors;
 public class EfficiencyService {
 
     public Map<FuelStation, Double> calculateMostEfficientFuelStation(double consumptionPer100Km, double amountGas, List<FuelStation> fuelStations) {
+        if(fuelStations == null || fuelStations.isEmpty()) {
+            return new HashMap<>();
+        }
+
         var map = new HashMap<FuelStation, Double>();
 
         fuelStations.forEach(fuelStation -> {
@@ -22,7 +25,7 @@ public class EfficiencyService {
         });
 
         return map.entrySet().stream()
-                .sorted(Comparator.comparingDouble(HashMap.Entry::getValue))
+                .sorted(Map.Entry.comparingByValue())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, HashMap::new));
     }
 }
