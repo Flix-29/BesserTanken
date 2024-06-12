@@ -1,15 +1,14 @@
 package de.flix29.besserTanken;
 
 import com.flowingcode.vaadin.addons.fontawesome.FontAwesome;
-import com.vaadin.flow.component.ClientCallable;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.map.Map;
 import com.vaadin.flow.component.map.configuration.Coordinate;
 import com.vaadin.flow.component.map.configuration.feature.MarkerFeature;
+import com.vaadin.flow.component.map.configuration.layer.TileLayer;
+import com.vaadin.flow.component.map.configuration.source.XYZSource;
 import com.vaadin.flow.component.map.configuration.style.Icon;
 import com.vaadin.flow.component.map.configuration.style.TextStyle;
 import com.vaadin.flow.component.map.events.MapFeatureClickEvent;
@@ -40,12 +39,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @PageTitle("BesserTanken")
 @Route(value = "")
@@ -55,9 +53,11 @@ public class BesserTankenView extends VerticalLayout {
     private final Logger LOGGER = LoggerFactory.getLogger(BesserTankenView.class);
     private final KraftstoffbilligerRequests kraftstoffbilligerRequests;
     private final OpenDataSoftRequests openDataSoftRequests;
+    private final EfficiencyService efficiencyService;
 
     private final VerticalLayout fuelStationsLayout = new VerticalLayout();
-    private final VerticalLayout mapComponent = new VerticalLayout();
+    private final VerticalLayout mapLayout = new VerticalLayout();
+    private final HorizontalLayout efficiencyLayout = new HorizontalLayout();
 
     private List<FuelStation> foundFuelStations;
     private List<FuelStation> displayedFuelStations;
@@ -69,11 +69,13 @@ public class BesserTankenView extends VerticalLayout {
     private final Select<String> useCurrentLocationSelect;
     private final Select<String> orderBySelect;
     private final Select<String> resultLimitSelect;
+    private final Select<String> fuelTypeSelect;
     private final TabSheet tabSheet;
 
-    public BesserTankenView(KraftstoffbilligerRequests kraftstoffbilligerRequests, OpenDataSoftRequests openDataSoftRequests) {
+    public BesserTankenView(KraftstoffbilligerRequests kraftstoffbilligerRequests, OpenDataSoftRequests openDataSoftRequests, EfficiencyService efficiencyService) {
         this.kraftstoffbilligerRequests = kraftstoffbilligerRequests;
         this.openDataSoftRequests = openDataSoftRequests;
+        this.efficiencyService = efficiencyService;
 
         radiusField = new NumberField("Enter radius (km): ", "5");
         radiusField.setSuffixComponent(new Div("km"));
@@ -94,7 +96,7 @@ public class BesserTankenView extends VerticalLayout {
         useCurrentLocationSelect.setLabel("Select search type: ");
         useCurrentLocationSelect.setValue("Use plz/place");
 
-        Select<String> fuelTypeSelect = new Select<>();
+        fuelTypeSelect = new Select<>();
         fuelTypeSelect.setItems(Arrays.stream(FuelType.values())
                 .map(FuelType::getName)
                 .toArray(String[]::new));
@@ -139,20 +141,27 @@ public class BesserTankenView extends VerticalLayout {
         var tab1 = new Tab(FontAwesome.Solid.GAS_PUMP.create(), new Span("Fuel Stations"));
         tab1.addThemeVariants(TabVariant.LUMO_ICON_ON_TOP);
         tab1.addClassName("FuelStations");
-        var tab2 = new Tab(FontAwesome.Regular.MAP.create(), new Span("Map"));
+        var tab2 = new Tab(FontAwesome.Solid.MAP.create(), new Span("Map"));
         tab2.addThemeVariants(TabVariant.LUMO_ICON_ON_TOP);
         tab2.setClassName("Map");
+        var tab3 = new Tab(FontAwesome.Solid.STOPWATCH.create(), new Span("Efficiency calculator"));
+        tab3.addThemeVariants(TabVariant.LUMO_ICON_ON_TOP);
+        tab3.setClassName("Map");
 
         tabSheet = new TabSheet();
         tabSheet.add(tab1, fuelStationsLayout);
-        tabSheet.add(tab2, new LazyComponent(() -> mapComponent));
+        tabSheet.add(tab2, new LazyComponent(() -> mapLayout));
+        tabSheet.add(tab3, new LazyComponent(() -> efficiencyLayout));
         tabSheet.setWidthFull();
         tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
         tabSheet.addSelectedChangeListener(event -> {
             if (event.getSelectedTab().equals(tab1)) {
-                removeComponentByClassName(this, "tooltip");
+                removeComponentsByClassName(this, "tooltip");
             } else if (event.getSelectedTab().equals(tab2)) {
                 renderMap();
+            } else if (event.getSelectedTab().equals(tab3)) {
+                removeComponentsByClassName(this, "tooltip");
+                renderEfficiencyCalc();
             }
         });
 
@@ -226,7 +235,7 @@ public class BesserTankenView extends VerticalLayout {
     }
 
     private void displayFuelStations() {
-        removeComponentByClassName(fuelStationsLayout, "temp");
+        removeComponentsByClassName(fuelStationsLayout, "temp");
 
         if (foundFuelStations == null) return;
 
@@ -312,10 +321,11 @@ public class BesserTankenView extends VerticalLayout {
     }
 
     private void renderMap() {
-        mapComponent.removeAll();
+        mapLayout.removeAll();
         map = new Map();
         map.setHeight("800px");
         map.setZoom(13);
+        loadBackground();
 
         map.addViewMoveEndEventListener(event -> {
             var textStyle = new TextStyle();
@@ -344,7 +354,7 @@ public class BesserTankenView extends VerticalLayout {
         map.setCenter(startCoords);
 
         if (displayedFuelStations == null) {
-            mapComponent.add(map);
+            mapLayout.add(map);
             return;
         }
 
@@ -358,7 +368,7 @@ public class BesserTankenView extends VerticalLayout {
             map.getFeatureLayer().addFeature(marker);
         });
 
-        map.addClickEventListener(event -> removeComponentByClassName(this, "tooltip"));
+        map.addClickEventListener(event -> removeComponentsByClassName(this, "tooltip"));
         map.addFeatureClickListener(event -> {
             var marker = (MarkerFeature) event.getFeature();
             var coordinates = marker.getCoordinates();
@@ -367,25 +377,43 @@ public class BesserTankenView extends VerticalLayout {
                             fuelStationsItem.getDetails().getLon() == coordinates.getX())
                     .findFirst();
 
-            removeComponentByClassName(this, "tooltip");
+            removeComponentsByClassName(this, "tooltip");
             var tooltip = getTooltip(event, fuelStation);
 
             add(tooltip);
         });
 
-        mapComponent.add(map);
+        mapLayout.add(map);
+    }
+
+    private void loadBackground() {
+        final var apiKey = BesserTanken.getSecrets().getOrDefault("mapKey", "");
+
+        XYZSource.Options sourceOptions = new XYZSource.Options();
+        sourceOptions.setUrl(
+                "https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=" + apiKey);
+        sourceOptions.setAttributions(List.of(
+                "<a href=\"https://www.mapbox.com/about/maps/\">© Mapbox</a>",
+                "<a href=\"https://www.openstreetmap.org/about/\">© OpenStreetMap</a>"));
+        sourceOptions.setAttributionsCollapsible(false);
+        XYZSource source = new XYZSource(sourceOptions);
+        TileLayer tileLayer = new TileLayer();
+        tileLayer.setSource(source);
+        map.setBackgroundLayer(tileLayer);
     }
 
     private Icon getRedIcon() {
         var optionsRed = new Icon.Options();
-        optionsRed.setImg(new StreamResource("locationdot-lightcoral-duotone.png", () -> getClass().getResourceAsStream("/images/small_locationdot-lightcoral-duotone.png")));
+        optionsRed.setImg(new StreamResource("locationdot-lightcoral-duotone.png",
+                () -> getClass().getResourceAsStream("/images/small_locationdot-lightcoral-duotone.png")));
         optionsRed.setAnchor(new Icon.Anchor(0.5, 0.8));
         return new Icon(optionsRed);
     }
 
     private Icon getBlueIcon() {
         var optionsBlue = new Icon.Options();
-        optionsBlue.setImg(new StreamResource("locationdot-cornflowerblue-duotone.png", () -> getClass().getResourceAsStream("/images/small_locationdot-cornflowerblue-duotone.png")));
+        optionsBlue.setImg(new StreamResource("locationdot-cornflowerblue-duotone.png",
+                () -> getClass().getResourceAsStream("/images/small_locationdot-cornflowerblue-duotone.png")));
         optionsBlue.setAnchor(new Icon.Anchor(0.5, 0.8));
         return new Icon(optionsBlue);
     }
@@ -416,9 +444,9 @@ public class BesserTankenView extends VerticalLayout {
         return tooltip;
     }
 
-    private <T extends Component> void removeComponentByClassName(T parent, String className) {
+    private <T extends Component> void removeComponentsByClassName(T parent, String className) {
         parent.getChildren()
-                .filter(child -> child.hasClassName(className))
+                .filter(child -> child.getClassNames().stream().anyMatch(name -> name.equals(className)))
                 .forEach(Component::removeFromParent);
     }
 
@@ -430,5 +458,53 @@ public class BesserTankenView extends VerticalLayout {
                 }
             });
         }
+    }
+
+    private void renderEfficiencyCalc() {
+        removeComponentsByClassName(efficiencyLayout, "efficiencyCalc");
+
+        var consumption = new NumberField("Consumption", "6.5");
+        consumption.setSuffixComponent(new Span("L/100Km"));
+        consumption.addClassName("efficiencyCalc");
+
+        var amountGas = new NumberField("Amount of Gas", "42.5");
+        amountGas.setSuffixComponent(new Span("L"));
+        amountGas.addClassName("efficiencyCalc");
+
+        var button = new Button("Calculate", FontAwesome.Solid.CALCULATOR.create());
+        button.addClassName("efficiencyCalc");
+
+        button.addClickListener(event -> {
+            var resultsLayout = new VerticalLayout(new H3("Result: "));
+            resultsLayout.addClassName("efficiencyCalc_result");
+            var fuelStations = new HashMap<>(calculateEfficiency(consumption.getValue(), amountGas.getValue()));
+            removeComponentsByClassName(efficiencyLayout, "efficiencyCalc_result");
+
+            fuelStations.entrySet().stream().limit(3).forEach(entry -> {
+                var fuelStation = entry.getKey();
+                var price = entry.getValue();
+
+                var bigDecimal = new BigDecimal(price).setScale(2, RoundingMode.HALF_UP);
+                var paragraph = new Paragraph(
+                        new Paragraph(fuelStation.getName() + ", " + fuelStation.getAddress() + ", " + fuelStation.getPrice() + "€/L"),
+                        new Text("Distance: " + fuelStation.getDistance() + "km, Total: " + bigDecimal + "€")
+                );
+                resultsLayout.add(paragraph);
+            });
+            efficiencyLayout.add(resultsLayout);
+        });
+
+        var verticalLayout = new VerticalLayout(new HorizontalLayout(consumption, amountGas), button);
+        verticalLayout.addClassName("efficiencyCalc");
+        efficiencyLayout.addComponentAsFirst(verticalLayout);
+    }
+
+    private java.util.Map<FuelStation, Double> calculateEfficiency(double consumption, double amountGas) {
+        var fuelStations = kraftstoffbilligerRequests
+                .getFuelStationsByLocation(currentLocation, FuelType.fromName(fuelTypeSelect.getValue()), 5).stream()
+                .filter(fuelStation -> fuelStation.getPrice() != 0.0)
+                .toList();
+
+        return efficiencyService.calculateMostEfficientFuelStation(consumption, amountGas, fuelStations);
     }
 }

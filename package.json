@@ -3,7 +3,7 @@
   "license": "UNLICENSED",
   "type": "module",
   "dependencies": {
-    "@flowingcode/font-awesome-iron-iconset": "5.1.1",
+    "@flowingcode/font-awesome-iron-iconset": "5.1.0",
     "@polymer/polymer": "3.5.1",
     "@vaadin/a11y-base": "24.3.13",
     "@vaadin/accordion": "24.3.13",
@@ -100,7 +100,7 @@
   },
   "vaadin": {
     "dependencies": {
-      "@flowingcode/font-awesome-iron-iconset": "5.1.1",
+      "@flowingcode/font-awesome-iron-iconset": "5.1.0",
       "@polymer/polymer": "3.5.1",
       "@vaadin/a11y-base": "24.3.13",
       "@vaadin/accordion": "24.3.13",
@@ -188,7 +188,7 @@
       "rollup-plugin-visualizer": "5.12.0",
       "strip-css-comments": "5.0.0",
       "transform-ast": "2.4.4",
-      "typescript": "5.4.5",
+      "typescript": "5.3.3",
       "vite": "5.1.7",
       "vite-plugin-checker": "0.6.4",
       "workbox-build": "7.1.1",
