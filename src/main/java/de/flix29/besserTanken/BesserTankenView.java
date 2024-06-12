@@ -65,6 +65,7 @@ public class BesserTankenView extends VerticalLayout {
     private List<Location> currentLocation;
 
     private Map map;
+    private final NumberField radiusField;
     private final Select<String> useCurrentLocationSelect;
     private final Select<String> orderBySelect;
     private final Select<String> resultLimitSelect;
@@ -76,8 +77,8 @@ public class BesserTankenView extends VerticalLayout {
         this.openDataSoftRequests = openDataSoftRequests;
         this.efficiencyService = efficiencyService;
 
-        var radiusField = new NumberField("Enter radius (Km): ", "5");
-        radiusField.setSuffixComponent(new Div("Km"));
+        radiusField = new NumberField("Enter radius (km): ", "5");
+        radiusField.setSuffixComponent(new Div("km"));
 
         var placeField = new TextField("Place or plz: ", "'Berlin' or '10178'");
 
@@ -164,8 +165,14 @@ public class BesserTankenView extends VerticalLayout {
             }
         });
 
+        var version = new Span(BesserTanken.getEnv().getProperty("bessertanken.version"));
+        version.getStyle().set("padding-bottom", "3px");
+        version.getStyle().setColor("var(--lumo-contrast-70pct)");
+        var header = new HorizontalLayout(new H1("BesserTanken"), version);
+        header.setAlignItems(Alignment.END);
+
         add(
-                new H1("BesserTanken"),
+                header,
                 horizontalLayout,
                 new Hr(),
                 tabSheet
@@ -305,7 +312,9 @@ public class BesserTankenView extends VerticalLayout {
                 renderMap();
             }
         } else {
-            var h2 = new H2("No fuel stations found for your input.");
+            var location = currentLocation.get(0);
+            var h2 = new H2("No fuel stations found for: " + location.getLatitude() + ", " +
+                    location.getLongitude() + " in a radius of " + radiusField.getValue() + " km.");
             h2.addClassName("temp");
             fuelStationsLayout.add(h2);
         }

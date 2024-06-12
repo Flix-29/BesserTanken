@@ -12,6 +12,8 @@ import de.flix29.besserTanken.model.kraftstoffbilliger.FuelType;
 import de.flix29.besserTanken.model.kraftstoffbilliger.requests.Endpoints;
 import de.flix29.besserTanken.model.kraftstoffbilliger.requests.HTTPMethod;
 import jakarta.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -22,6 +24,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +37,7 @@ import static de.flix29.besserTanken.model.kraftstoffbilliger.requests.HTTPMetho
 @Service
 public class KraftstoffbilligerJob {
 
+    private final Logger LOGGER = LoggerFactory.getLogger(KraftstoffbilligerJob.class);
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDateTime.class, new CustomLocalDateTimeDeserializer())
             .registerTypeAdapter(FuelType.class, new CustomFuelTypeDeserializer())
@@ -59,7 +63,7 @@ public class KraftstoffbilligerJob {
 
         if (httpMethod == GET) {
             requestBuilder.GET();
-        } else if(httpMethod == POST) {
+        } else if (httpMethod == POST) {
             requestBuilder
                     .header("Content-Type", "application/x-www-form-urlencoded")
                     .POST(HttpRequest.BodyPublishers.ofString(createFormDataFromString(parameter)));
@@ -70,9 +74,14 @@ public class KraftstoffbilligerJob {
 
     public List<FuelType> getFuelTypes() throws IOException, InterruptedException {
         var response = sendHttpGETRequestWithResponse(TYPES_ENDPOINT);
-        var jsonArray = gson.fromJson(response.body(), JsonObject.class).get("types").getAsJsonArray();
 
-        return gson.fromJson(jsonArray, FUEL_TYPE_LIST_TYPE);
+        try {
+            var jsonArray = gson.fromJson(response.body(), JsonObject.class).get("types").getAsJsonArray();
+            return gson.fromJson(jsonArray, FUEL_TYPE_LIST_TYPE);
+        } catch (Exception e) {
+            LOGGER.error("Error while parsing fuel types json {}", response.body(), e);
+            return Collections.emptyList();
+        }
     }
 
     public List<FuelStation> getFuelStations(@NotNull FuelType fuelType,
@@ -84,14 +93,19 @@ public class KraftstoffbilligerJob {
                 "lat", String.valueOf(lat),
                 "lon", String.valueOf(lon)));
 
-        if(radius != null) {
+        if (radius != null) {
             formData.put("radius", String.valueOf(radius));
         }
 
         var response = sendHttpPOSTRequestWithResponse(SEARCH_ENDPOINT, formData);
-        var jsonArray = gson.fromJson(response.body(), JsonObject.class).get("results").getAsJsonArray();
+        try {
+            var jsonArray = gson.fromJson(response.body(), JsonObject.class).get("results").getAsJsonArray();
+            return gson.fromJson(jsonArray, FUEL_STATION_LIST_TYPE);
+        } catch (Exception e) {
+            LOGGER.error("Error while parsing fuel stations json {}", response.body(), e);
+            return Collections.emptyList();
+        }
 
-        return gson.fromJson(jsonArray, FUEL_STATION_LIST_TYPE);
     }
 
     public List<FuelStation> getFuelStationRoute(@NotNull int lat,
@@ -107,23 +121,33 @@ public class KraftstoffbilligerJob {
                 "lon2", String.valueOf(lon2),
                 "type", String.valueOf(type)));
 
-        if(map != null) {
+        if (map != null) {
             formData.put("map", map);
         }
 
         var response = sendHttpPOSTRequestWithResponse(ROUTING_ENDPOINT, formData);
-        JsonArray jsonArray = gson.fromJson(response.body(), JsonObject.class).get("results").getAsJsonArray();
 
-        return gson.fromJson(jsonArray, FUEL_STATION_LIST_TYPE);
+        try {
+            JsonArray jsonArray = gson.fromJson(response.body(), JsonObject.class).get("results").getAsJsonArray();
+            return gson.fromJson(jsonArray, FUEL_STATION_LIST_TYPE);
+        } catch (Exception e) {
+            LOGGER.error("Error while parsing fuel stations json {}", response.body(), e);
+            return Collections.emptyList();
+        }
     }
 
     public FuelStationDetail getFuelStationDetails(@NotNull String id) throws IOException, InterruptedException {
         var formData = Map.of("id", id);
 
         var response = sendHttpPOSTRequestWithResponse(DETAILS_ENDPOINT, formData);
-        var result = gson.fromJson(response.body(), JsonObject.class).get("result").getAsJsonArray().get(0);
 
-        return gson.fromJson(result, FuelStationDetail.class);
+        try {
+            var result = gson.fromJson(response.body(), JsonObject.class).get("result").getAsJsonArray().get(0);
+            return gson.fromJson(result, FuelStationDetail.class);
+        } catch (Exception e) {
+            LOGGER.error("Error while parsing fuel station details json {}", response.body(), e);
+            return null;
+        }
     }
 
     private static String createFormDataFromString(Map<String, String> formData) {
