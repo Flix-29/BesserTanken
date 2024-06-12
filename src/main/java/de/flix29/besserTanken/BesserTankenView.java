@@ -471,14 +471,14 @@ public class BesserTankenView extends VerticalLayout {
         amountGas.setSuffixComponent(new Span("l"));
         amountGas.addClassName("efficiencyCalc");
 
-        var button = new Button("go");
+        var button = new Button("Calculate", FontAwesome.Solid.CALCULATOR.create());
         button.addClassName("efficiencyCalc");
-        var fuelStations = new HashMap<FuelStation, Double>();
-        var resultsLayout = new VerticalLayout();
-        resultsLayout.addClassName("efficiencyCalc");
+
         button.addClickListener(event -> {
+            var resultsLayout = new VerticalLayout();
+            resultsLayout.addClassName("efficiencyCalc_result");
+            var fuelStations = new HashMap<>(calculateEfficiency(consumption.getValue(), amountGas.getValue()));
             removeComponentsByClassName(efficiencyLayout, "efficiencyCalc_result");
-            fuelStations.putAll(calculateEfficiency(consumption.getValue(), amountGas.getValue()));
 
             fuelStations.entrySet().stream().limit(3).forEach(entry -> {
                 var fuelStation = entry.getKey();
@@ -487,16 +487,16 @@ public class BesserTankenView extends VerticalLayout {
                 var bigDecimal = new BigDecimal(price).setScale(2, RoundingMode.HALF_UP);
                 var paragraph = new Paragraph(
                         new Paragraph(fuelStation.getName() + ", " + fuelStation.getAddress()),
-                        new Text(fuelStation.getPrice() + "€/l, total: " + bigDecimal + "€")
+                        new Text(fuelStation.getPrice() + "€/L, total: " + bigDecimal + "€")
                 );
                 resultsLayout.add(paragraph);
             });
+            efficiencyLayout.add(resultsLayout);
         });
 
-        HorizontalLayout horizontalLayout = new HorizontalLayout(consumption, amountGas);
-        VerticalLayout verticalLayout = new VerticalLayout(horizontalLayout, button);
+        var verticalLayout = new VerticalLayout(new HorizontalLayout(consumption, amountGas), button);
         verticalLayout.addClassName("efficiencyCalc");
-        efficiencyLayout.add(verticalLayout, resultsLayout);
+        efficiencyLayout.addComponentAsFirst(verticalLayout);
     }
 
     private java.util.Map<FuelStation, Double> calculateEfficiency(double consumption, double amountGas) {
