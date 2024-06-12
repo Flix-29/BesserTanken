@@ -65,17 +65,17 @@ public class BesserTankenView extends VerticalLayout {
     private List<Location> currentLocation;
 
     private Map map;
+    private final NumberField radiusField;
     private final Select<String> useCurrentLocationSelect;
     private final Select<String> orderBySelect;
     private final Select<String> resultLimitSelect;
     private final TabSheet tabSheet;
 
-
     public BesserTankenView(KraftstoffbilligerRequests kraftstoffbilligerRequests, OpenDataSoftRequests openDataSoftRequests) {
         this.kraftstoffbilligerRequests = kraftstoffbilligerRequests;
         this.openDataSoftRequests = openDataSoftRequests;
 
-        var radiusField = new NumberField("Enter radius (km): ", "5");
+        radiusField = new NumberField("Enter radius (km): ", "5");
         radiusField.setSuffixComponent(new Div("km"));
 
         var placeField = new TextField("Place or plz: ", "'Berlin' or '10178'");
@@ -303,7 +303,9 @@ public class BesserTankenView extends VerticalLayout {
                 renderMap();
             }
         } else {
-            var h2 = new H2("No fuel stations found for your input.");
+            var location = currentLocation.get(0);
+            var h2 = new H2("No fuel stations found for: " + location.getLatitude() + ", " +
+                    location.getLongitude() + " in a radius of " + radiusField.getValue() + " km.");
             h2.addClassName("temp");
             fuelStationsLayout.add(h2);
         }
