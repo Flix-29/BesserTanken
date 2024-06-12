@@ -464,18 +464,18 @@ public class BesserTankenView extends VerticalLayout {
         removeComponentsByClassName(efficiencyLayout, "efficiencyCalc");
 
         var consumption = new NumberField("Consumption", "6.5");
-        consumption.setSuffixComponent(new Span("l/100km"));
+        consumption.setSuffixComponent(new Span("L/100Km"));
         consumption.addClassName("efficiencyCalc");
 
         var amountGas = new NumberField("Amount of Gas", "42.5");
-        amountGas.setSuffixComponent(new Span("l"));
+        amountGas.setSuffixComponent(new Span("L"));
         amountGas.addClassName("efficiencyCalc");
 
         var button = new Button("Calculate", FontAwesome.Solid.CALCULATOR.create());
         button.addClassName("efficiencyCalc");
 
         button.addClickListener(event -> {
-            var resultsLayout = new VerticalLayout();
+            var resultsLayout = new VerticalLayout(new H3("Result: "));
             resultsLayout.addClassName("efficiencyCalc_result");
             var fuelStations = new HashMap<>(calculateEfficiency(consumption.getValue(), amountGas.getValue()));
             removeComponentsByClassName(efficiencyLayout, "efficiencyCalc_result");
@@ -486,8 +486,8 @@ public class BesserTankenView extends VerticalLayout {
 
                 var bigDecimal = new BigDecimal(price).setScale(2, RoundingMode.HALF_UP);
                 var paragraph = new Paragraph(
-                        new Paragraph(fuelStation.getName() + ", " + fuelStation.getAddress()),
-                        new Text(fuelStation.getPrice() + "€/L, total: " + bigDecimal + "€")
+                        new Paragraph(fuelStation.getName() + ", " + fuelStation.getAddress() + ", " + fuelStation.getPrice() + "€/L"),
+                        new Text("Distance: " + fuelStation.getDistance() + "km, Total: " + bigDecimal + "€")
                 );
                 resultsLayout.add(paragraph);
             });
