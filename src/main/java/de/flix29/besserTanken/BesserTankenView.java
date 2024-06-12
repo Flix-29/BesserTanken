@@ -446,7 +446,7 @@ public class BesserTankenView extends VerticalLayout {
 
     private <T extends Component> void removeComponentsByClassName(T parent, String className) {
         parent.getChildren()
-                .filter(child -> child.getClassNames().stream().anyMatch(name -> name.contains(className)))
+                .filter(child -> child.getClassNames().stream().anyMatch(name -> name.equals(className)))
                 .forEach(Component::removeFromParent);
     }
 
