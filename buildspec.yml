@@ -1,0 +1,20 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto17
+  pre_build:
+    commands:
+      - echo "Installing dependencies..."
+      - mvn install
+      - npm install
+  build:
+    commands:
+      - mvn clean package -Pproduction
+  post_build:
+    commands:
+      - echo "Build completed."
+artifacts:
+  files:
+    - target/*.jar
