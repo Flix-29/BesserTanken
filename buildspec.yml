@@ -16,9 +16,6 @@ phases:
       - mvn clean package -Pproduction
       - VERSION=$(cat version.txt)
       - cp target/BesserTanken-${VERSION}-exec.jar BesserTanken-${VERSION}-exec.jar
-  post_build:
-    commands:
-      - echo "Build completed."
 artifacts:
   files:
-    - BesserTanken-${VERSION}-exec.jar
+    - '**/*-exec.jar'
