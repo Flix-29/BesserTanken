@@ -16,6 +16,7 @@ phases:
       - mvn clean package -Pproduction
       - VERSION=$(cat version.txt)
       - cp target/BesserTanken-${VERSION}-exec.jar BesserTanken-${VERSION}-exec.jar
+      - rm -r target
 artifacts:
   files:
     - '**/*-exec.jar'
