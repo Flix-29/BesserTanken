@@ -4,6 +4,8 @@ phases:
   install:
     runtime-versions:
       java: corretto17
+    commands:
+      - mvn -B help:evaluate -Dexpression=project.version -q -DforceStdout=true > version.txt
   pre_build:
     commands:
       - echo "Installing dependencies..."
@@ -12,9 +14,9 @@ phases:
   build:
     commands:
       - mvn clean package -Pproduction
-  post_build:
-    commands:
-      - echo "Build completed."
+      - VERSION=$(cat version.txt)
+      - cp target/BesserTanken-${VERSION}-exec.jar BesserTanken-${VERSION}-exec.jar
+      - rm -r target
 artifacts:
   files:
-    - target/*.jar
+    - '**/*-exec.jar'
