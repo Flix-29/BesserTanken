@@ -3,7 +3,7 @@
   "license": "UNLICENSED",
   "type": "module",
   "dependencies": {
-    "@flowingcode/font-awesome-iron-iconset": "5.1.0",
+    "@flowingcode/font-awesome-iron-iconset": "5.1.1",
     "@jridgewell/sourcemap-codec": "^1.4.15",
     "@polymer/polymer": "3.5.1",
     "@rollup/plugin-terser": "^0.4.4",
@@ -48,7 +48,7 @@
   },
   "vaadin": {
     "dependencies": {
-      "@flowingcode/font-awesome-iron-iconset": "5.1.0",
+      "@flowingcode/font-awesome-iron-iconset": "5.1.1",
       "@polymer/polymer": "3.5.1",
       "@vaadin/bundles": "24.4.0",
       "@vaadin/common-frontend": "0.0.19",
