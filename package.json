@@ -3,7 +3,7 @@
   "license": "UNLICENSED",
   "type": "module",
   "dependencies": {
-    "@flowingcode/font-awesome-iron-iconset": "5.1.1",
+    "@flowingcode/font-awesome-iron-iconset": "5.1.0",
     "@jridgewell/sourcemap-codec": "^1.4.15",
     "@polymer/polymer": "3.5.1",
     "@rollup/plugin-terser": "^0.4.4",
@@ -19,7 +19,7 @@
     "@vaadin/vaadin-themable-mixin": "24.4.0",
     "@vaadin/vaadin-usage-statistics": "2.1.2",
     "construct-style-sheets-polyfill": "3.1.0",
-    "date-fns": "3.6.0",
+    "date-fns": "2.29.3",
     "lit": "3.1.4",
     "proj4": "2.11.0",
     "react": "18.3.1",
@@ -48,7 +48,7 @@
   },
   "vaadin": {
     "dependencies": {
-      "@flowingcode/font-awesome-iron-iconset": "5.1.1",
+      "@flowingcode/font-awesome-iron-iconset": "5.1.0",
       "@polymer/polymer": "3.5.1",
       "@vaadin/bundles": "24.4.0",
       "@vaadin/common-frontend": "0.0.19",
@@ -62,7 +62,7 @@
       "@vaadin/vaadin-themable-mixin": "24.4.0",
       "@vaadin/vaadin-usage-statistics": "2.1.2",
       "construct-style-sheets-polyfill": "3.1.0",
-      "date-fns": "3.6.0",
+      "date-fns": "2.29.3",
       "lit": "3.1.4",
       "proj4": "2.11.0",
       "react": "18.3.1",
