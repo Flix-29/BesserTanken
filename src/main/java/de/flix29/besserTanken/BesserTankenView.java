@@ -51,7 +51,7 @@ import java.util.*;
 @PermitAll
 public class BesserTankenView extends Div {
 
-    //Fix: search button, limit and order, efficiency result, remove all remaining horizontal layouts
+    //FIXME: limit and order, result, efficiency result, remove all remaining horizontal layouts
 
     private final Logger LOGGER = LoggerFactory.getLogger(BesserTankenView.class);
     private final KraftstoffbilligerRequests kraftstoffbilligerRequests;
@@ -79,8 +79,6 @@ public class BesserTankenView extends Div {
         this.kraftstoffbilligerRequests = kraftstoffbilligerRequests;
         this.openDataSoftRequests = openDataSoftRequests;
         this.efficiencyService = efficiencyService;
-
-        setWidthFull();
 
         radiusField = new NumberField("Enter radius (km): ", "5");
         radiusField.setSuffixComponent(new Div("km"));
@@ -112,11 +110,13 @@ public class BesserTankenView extends Div {
         resultLimitSelect.setItems("10", "25", "50", "all");
         resultLimitSelect.setLabel("Result limit:");
         resultLimitSelect.setValue("10");
+        resultLimitSelect.getStyle().setMargin("0px");
 
         orderBySelect = new Select<>(event -> displayFuelStations());
         orderBySelect.setItems("Price", "Distance");
         orderBySelect.setLabel("Order by: ");
         orderBySelect.setValue("Price");
+        orderBySelect.getStyle().setMargin("0px");
 
         var searchButton = new Button("Search", event -> {
             foundFuelStations = performSearch(
@@ -127,6 +127,7 @@ public class BesserTankenView extends Div {
             displayFuelStations();
         });
         searchButton.addClickShortcut(Key.ENTER);
+        searchButton.setWidth("auto");
 
         var orderByLimitLayout = new Div(resultLimitSelect, orderBySelect);
         orderByLimitLayout.addClassName("horizontal-layout");
@@ -144,23 +145,25 @@ public class BesserTankenView extends Div {
         horizontalLayout.addClassName("horizontal-layout");
         horizontalLayout.getStyle().setFlexBasis(Style.FlexBasis.AUTO);
         horizontalLayout.setWidthFull();
+        horizontalLayout.getStyle().setAlignItems(Style.AlignItems.CENTER);
         searchButton.getStyle().setAlignSelf(Style.AlignSelf.END);
 
         var tab1 = new Tab(FontAwesome.Solid.GAS_PUMP.create(), new Span("Fuel Stations"));
         tab1.addThemeVariants(TabVariant.LUMO_ICON_ON_TOP);
-        tab1.addClassName("FuelStations");
+        tab1.addClassNames("FuelStations", "tab-item");
         var tab2 = new Tab(FontAwesome.Solid.MAP.create(), new Span("Map"));
         tab2.addThemeVariants(TabVariant.LUMO_ICON_ON_TOP);
-        tab2.setClassName("Map");
+        tab2.addClassNames("Map", "tab-item");
         var tab3 = new Tab(FontAwesome.Solid.STOPWATCH.create(), new Span("Efficiency calculator"));
         tab3.addThemeVariants(TabVariant.LUMO_ICON_ON_TOP);
-        tab3.setClassName("Map");
+        tab3.addClassNames("Map", "tab-item");
 
         tabSheet = new TabSheet();
         tabSheet.add(tab1, fuelStationsLayout);
         tabSheet.add(tab2, new LazyComponent(() -> mapLayout));
         tabSheet.add(tab3, new LazyComponent(() -> efficiencyLayout));
         tabSheet.setWidthFull();
+        tabSheet.getStyle().setMarginTop("30px");
         tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
         tabSheet.addSelectedChangeListener(event -> {
             if (event.getSelectedTab().equals(tab1)) {
@@ -173,13 +176,18 @@ public class BesserTankenView extends Div {
             }
         });
 
+        var besserTankenName = new H1("BesserTanken");
+        besserTankenName.getStyle().setMargin("0px");
+
         var version = new Span(BesserTanken.getEnv().getProperty("bessertanken.version"));
-        version.getStyle().set("padding-bottom", "3px");
+        version.getStyle().setFontSize("var(--lumo-font-size-s)");
         version.getStyle().setColor("var(--lumo-contrast-70pct)");
-        version.getStyle().setPaddingLeft("10px");
-        var header = new Div(new H1("BesserTanken"), version);
-        header.getStyle().setDisplay(Style.Display.FLEX);
+        version.getStyle().setMargin("0px 0px 3px 0px");
+
+        var header = new Div(besserTankenName, version);
         header.getStyle().setAlignItems(Style.AlignItems.END);
+        header.getStyle().setMargin("15px 0px 30px 15px");
+        header.addClassNames("horizontal-layout", "header-layout");
 
         add(
                 header,
