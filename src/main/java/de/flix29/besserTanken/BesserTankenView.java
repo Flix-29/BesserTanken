@@ -12,7 +12,6 @@ import com.vaadin.flow.component.map.configuration.source.XYZSource;
 import com.vaadin.flow.component.map.configuration.style.Icon;
 import com.vaadin.flow.component.map.configuration.style.TextStyle;
 import com.vaadin.flow.component.map.events.MapFeatureClickEvent;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.tabs.Tab;
@@ -51,7 +50,7 @@ import java.util.*;
 @PermitAll
 public class BesserTankenView extends Div {
 
-    //FIXME: limit and order, result, efficiency result, remove all remaining horizontal layouts
+    //FIXME: flex wrap, efficiency result, remove all remaining horizontal layouts
 
     private final Logger LOGGER = LoggerFactory.getLogger(BesserTankenView.class);
     private final KraftstoffbilligerRequests kraftstoffbilligerRequests;
@@ -134,7 +133,7 @@ public class BesserTankenView extends Div {
         orderByLimitLayout.setWidthFull();
         orderByLimitLayout.getStyle().setJustifyContent(Style.JustifyContent.END);
 
-        var horizontalLayout = new Div(
+        var filterDiv = new Div(
                 useCurrentLocationSelect,
                 placeField,
                 fuelTypeSelect,
@@ -142,10 +141,10 @@ public class BesserTankenView extends Div {
                 searchButton,
                 orderByLimitLayout
         );
-        horizontalLayout.addClassName("horizontal-layout");
-        horizontalLayout.getStyle().setFlexBasis(Style.FlexBasis.AUTO);
-        horizontalLayout.setWidthFull();
-        horizontalLayout.getStyle().setAlignItems(Style.AlignItems.CENTER);
+        filterDiv.addClassName("horizontal-layout");
+        filterDiv.getStyle().setFlexBasis(Style.FlexBasis.AUTO);
+        filterDiv.setWidthFull();
+        filterDiv.getStyle().setAlignItems(Style.AlignItems.CENTER);
         searchButton.getStyle().setAlignSelf(Style.AlignSelf.END);
 
         var tab1 = new Tab(FontAwesome.Solid.GAS_PUMP.create(), new Span("Fuel Stations"));
@@ -191,7 +190,7 @@ public class BesserTankenView extends Div {
 
         add(
                 header,
-                horizontalLayout,
+                filterDiv,
                 new Hr(),
                 tabSheet
         );
@@ -307,20 +306,20 @@ public class BesserTankenView extends Div {
                 layoutPriceDistance.getStyle().setJustifyContent(Style.JustifyContent.CENTER);
                 layoutPriceDistance.getStyle().setAlignItems(Style.AlignItems.CENTER);
                 price.getStyle().setAlignSelf(Style.AlignSelf.END);
-                distance.getStyle().setAlignSelf(Style.AlignSelf.CENTER);
+                distance.getStyle().setMargin("0 0 0 auto");
 
-                var layoutRow = new HorizontalLayout(layoutNameAddress, layoutPriceDistance);
+                var layoutRow = new Div(layoutNameAddress, layoutPriceDistance);
+                layoutRow.addClassName("horizontal-layout");
+                layoutRow.getStyle().setPadding("10px 15px");
+                layoutRow.getStyle().setMargin("10px");
                 layoutRow.addClassName("temp");
                 layoutRow.setWidthFull();
                 layoutRow.setHeight("min-content");
-                layoutRow.setAlignItems(FlexComponent.Alignment.CENTER);
-                layoutRow.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-                layoutRow.setFlexGrow(1.0, layoutNameAddress);
-                layoutRow.setFlexGrow(1.0, layoutPriceDistance);
+                layoutRow.getStyle().setAlignItems(Style.AlignItems.CENTER);
+                layoutRow.getStyle().setJustifyContent(Style.JustifyContent.CENTER);
                 layoutRow.getStyle().setBorder("3px solid var(--lumo-contrast-10pct)");
 
                 setWidthFull();
-                getStyle().set("flex-grow", "1");
                 fuelStationsLayout.add(layoutRow);
             });
 
