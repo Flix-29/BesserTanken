@@ -43,4 +43,9 @@ body {
     .header-layout {
         gap: 0 !important;
     }
+
+    .header-layout > * {
+        width: auto !important;
+        margin-right: 5px !important;
+    }
 }
