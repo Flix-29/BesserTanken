@@ -12,7 +12,6 @@ import com.vaadin.flow.component.map.configuration.source.XYZSource;
 import com.vaadin.flow.component.map.configuration.style.Icon;
 import com.vaadin.flow.component.map.configuration.style.TextStyle;
 import com.vaadin.flow.component.map.events.MapFeatureClickEvent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
@@ -50,7 +49,7 @@ import java.util.*;
 @PermitAll
 public class BesserTankenView extends Div {
 
-    //FIXME: flex wrap, efficiency result, remove all remaining horizontal layouts
+    //FIXME: fix flex wrap
 
     private final Logger LOGGER = LoggerFactory.getLogger(BesserTankenView.class);
     private final KraftstoffbilligerRequests kraftstoffbilligerRequests;
@@ -59,7 +58,7 @@ public class BesserTankenView extends Div {
 
     private final Div fuelStationsLayout = new Div();
     private final Div mapLayout = new Div();
-    private final HorizontalLayout efficiencyLayout = new HorizontalLayout();
+    private final Div efficiencyLayout = new Div();
 
     private List<FuelStation> foundFuelStations;
     private List<FuelStation> displayedFuelStations;
@@ -181,7 +180,7 @@ public class BesserTankenView extends Div {
         var version = new Span(BesserTanken.getEnv().getProperty("bessertanken.version"));
         version.getStyle().setFontSize("var(--lumo-font-size-s)");
         version.getStyle().setColor("var(--lumo-contrast-70pct)");
-        version.getStyle().setMargin("0px 0px 3px 0px");
+        version.getStyle().setMarginBottom("4px");
 
         var header = new Div(besserTankenName, version);
         header.getStyle().setAlignItems(Style.AlignItems.END);
@@ -476,6 +475,7 @@ public class BesserTankenView extends Div {
     }
 
     private void renderEfficiencyCalc() {
+        efficiencyLayout.addClassName("horizontal-layout");
         removeComponentsByClassName(efficiencyLayout, "efficiencyCalc");
 
         var consumption = new NumberField("Consumption", "6.5");
@@ -488,10 +488,12 @@ public class BesserTankenView extends Div {
 
         var button = new Button("Calculate", FontAwesome.Solid.CALCULATOR.create());
         button.addClassName("efficiencyCalc");
+        button.getStyle().setPadding("10px");
 
         button.addClickListener(event -> {
             var resultsLayout = new Div(new H3("Result: "));
             resultsLayout.addClassName("efficiencyCalc_result");
+            resultsLayout.getStyle().setMarginLeft("auto");
             var fuelStations = new HashMap<>(calculateEfficiency(consumption.getValue(), amountGas.getValue()));
             removeComponentsByClassName(efficiencyLayout, "efficiencyCalc_result");
 
@@ -509,9 +511,13 @@ public class BesserTankenView extends Div {
             efficiencyLayout.add(resultsLayout);
         });
 
-        var div = new Div(new HorizontalLayout(consumption, amountGas), button);
-        div.addClassName("efficiencyCalc");
-        efficiencyLayout.addComponentAsFirst(div);
+        var optionsInputDiv = new Div(consumption, amountGas);
+        optionsInputDiv.getStyle().setMarginBottom("10px");
+        optionsInputDiv.addClassName("horizontal-layout");
+
+        var optionsDiv = new Div(optionsInputDiv, button);
+        optionsDiv.addClassName("efficiencyCalc");
+        efficiencyLayout.addComponentAsFirst(optionsDiv);
     }
 
     private java.util.Map<FuelStation, Double> calculateEfficiency(double consumption, double amountGas) {

@@ -29,6 +29,10 @@ body {
     margin: 5px 10px;
 }
 
+.tab-item > span {
+    padding-bottom: 3px;
+}
+
 @media (max-width: 1400px) {
     .horizontal-layout > * {
         width: 100%;
