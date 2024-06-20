@@ -394,15 +394,15 @@ public class BesserTankenView extends Div {
     private void loadBackground() {
         final var apiKey = BesserTanken.getSecrets().getOrDefault("mapKey", "");
 
-        XYZSource.Options sourceOptions = new XYZSource.Options();
+        var sourceOptions = new XYZSource.Options();
         sourceOptions.setUrl(
                 "https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=" + apiKey);
         sourceOptions.setAttributions(List.of(
                 "<a href=\"https://www.mapbox.com/about/maps/\">© Mapbox</a>",
                 "<a href=\"https://www.openstreetmap.org/about/\">© OpenStreetMap</a>"));
         sourceOptions.setAttributionsCollapsible(false);
-        XYZSource source = new XYZSource(sourceOptions);
-        TileLayer tileLayer = new TileLayer();
+        var source = new XYZSource(sourceOptions);
+        var tileLayer = new TileLayer();
         tileLayer.setSource(source);
         map.setBackgroundLayer(tileLayer);
     }
@@ -424,7 +424,7 @@ public class BesserTankenView extends Div {
     }
 
     private Div getTooltip(MapFeatureClickEvent event, Optional<FuelStation> fuelStation) {
-        Div tooltip = new Div();
+        var tooltip = new Div();
         tooltip.addClassName("tooltip");
 
         fuelStation.ifPresent(fuelStationItem -> {
