@@ -275,7 +275,7 @@ public class BesserTankenView extends Div {
                 price.setWidth("max-content");
 
                 var name = new H3(fuelStation.getName());
-                name.setWidth("max-content");
+                name.addClassName("text-wrap");
 
                 var address = new Paragraph(fuelStation.getAddress() + ", " + fuelStation.getCity());
                 address.getStyle().setFontSize("var(--lumo-font-size-m)");
@@ -301,7 +301,7 @@ public class BesserTankenView extends Div {
                 distance.getStyle().setMarginLeft("auto");
 
                 var layoutRow = new Div(layoutNameAddress, layoutPriceDistance);
-                layoutRow.addClassName("horizontal-layout");
+                layoutRow.addClassName("fuelstation-result");
                 layoutRow.getStyle().setPadding("10px 15px");
                 layoutRow.getStyle().setMargin("10px 0");
                 layoutRow.addClassName("temp");

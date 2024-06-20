@@ -17,7 +17,7 @@ body {
     padding: 20px;
 }
 
-.horizontal-layout {
+.horizontal-layout, .fuelstation-result {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
@@ -47,5 +47,15 @@ body {
     .header-layout > * {
         width: auto !important;
         margin-right: 5px !important;
+    }
+}
+
+@media (max-width: 750px) {
+    .fuelstation-result {
+        flex-direction: column;
+    }
+
+    .text-wrap {
+        text-wrap: wrap;
     }
 }
