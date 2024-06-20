@@ -12,8 +12,6 @@ import com.vaadin.flow.component.map.configuration.source.XYZSource;
 import com.vaadin.flow.component.map.configuration.style.Icon;
 import com.vaadin.flow.component.map.configuration.style.TextStyle;
 import com.vaadin.flow.component.map.events.MapFeatureClickEvent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
@@ -21,6 +19,7 @@ import com.vaadin.flow.component.tabs.TabSheetVariant;
 import com.vaadin.flow.component.tabs.TabVariant;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.dom.Style.Position;
 import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.router.PageTitle;
@@ -48,16 +47,16 @@ import java.util.*;
 @PageTitle("BesserTanken")
 @Route(value = "")
 @PermitAll
-public class BesserTankenView extends VerticalLayout {
+public class BesserTankenView extends Div {
 
     private final Logger LOGGER = LoggerFactory.getLogger(BesserTankenView.class);
     private final KraftstoffbilligerRequests kraftstoffbilligerRequests;
     private final OpenDataSoftRequests openDataSoftRequests;
     private final EfficiencyService efficiencyService;
 
-    private final VerticalLayout fuelStationsLayout = new VerticalLayout();
-    private final VerticalLayout mapLayout = new VerticalLayout();
-    private final HorizontalLayout efficiencyLayout = new HorizontalLayout();
+    private final Div fuelStationsLayout = new Div();
+    private final Div mapLayout = new Div();
+    private final Div efficiencyLayout = new Div();
 
     private List<FuelStation> foundFuelStations;
     private List<FuelStation> displayedFuelStations;
@@ -107,11 +106,13 @@ public class BesserTankenView extends VerticalLayout {
         resultLimitSelect.setItems("10", "25", "50", "all");
         resultLimitSelect.setLabel("Result limit:");
         resultLimitSelect.setValue("10");
+        resultLimitSelect.getStyle().setMargin("0px");
 
         orderBySelect = new Select<>(event -> displayFuelStations());
         orderBySelect.setItems("Price", "Distance");
         orderBySelect.setLabel("Order by: ");
         orderBySelect.setValue("Price");
+        orderBySelect.getStyle().setMargin("0px");
 
         var searchButton = new Button("Search", event -> {
             foundFuelStations = performSearch(
@@ -123,11 +124,12 @@ public class BesserTankenView extends VerticalLayout {
         });
         searchButton.addClickShortcut(Key.ENTER);
 
-        HorizontalLayout orderByLimitLayout = new HorizontalLayout(resultLimitSelect, orderBySelect);
-        orderByLimitLayout.setWidthFull();
-        orderByLimitLayout.setJustifyContentMode(JustifyContentMode.END);
+        var orderByLimitLayout = new Div(resultLimitSelect, orderBySelect);
+        orderByLimitLayout.addClassName("horizontal-layout");
+        orderByLimitLayout.getStyle().setJustifyContent(Style.JustifyContent.END);
+        orderByLimitLayout.getStyle().setMarginLeft("auto");
 
-        var horizontalLayout = new HorizontalLayout(
+        var filterDiv = new Div(
                 useCurrentLocationSelect,
                 placeField,
                 fuelTypeSelect,
@@ -135,24 +137,26 @@ public class BesserTankenView extends VerticalLayout {
                 searchButton,
                 orderByLimitLayout
         );
-        horizontalLayout.setWidthFull();
-        horizontalLayout.setVerticalComponentAlignment(Alignment.END, searchButton);
+        filterDiv.addClassName("horizontal-layout");
+        filterDiv.getStyle().setFlexBasis(Style.FlexBasis.AUTO);
+        filterDiv.getStyle().setAlignItems(Style.AlignItems.CENTER);
+        searchButton.getStyle().setAlignSelf(Style.AlignSelf.END);
 
         var tab1 = new Tab(FontAwesome.Solid.GAS_PUMP.create(), new Span("Fuel Stations"));
         tab1.addThemeVariants(TabVariant.LUMO_ICON_ON_TOP);
-        tab1.addClassName("FuelStations");
+        tab1.addClassNames("FuelStations", "tab-item");
         var tab2 = new Tab(FontAwesome.Solid.MAP.create(), new Span("Map"));
         tab2.addThemeVariants(TabVariant.LUMO_ICON_ON_TOP);
-        tab2.setClassName("Map");
+        tab2.addClassNames("Map", "tab-item");
         var tab3 = new Tab(FontAwesome.Solid.STOPWATCH.create(), new Span("Efficiency calculator"));
         tab3.addThemeVariants(TabVariant.LUMO_ICON_ON_TOP);
-        tab3.setClassName("Map");
+        tab3.addClassNames("Map", "tab-item");
 
         tabSheet = new TabSheet();
         tabSheet.add(tab1, fuelStationsLayout);
         tabSheet.add(tab2, new LazyComponent(() -> mapLayout));
         tabSheet.add(tab3, new LazyComponent(() -> efficiencyLayout));
-        tabSheet.setWidthFull();
+        tabSheet.getStyle().setMarginTop("30px");
         tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
         tabSheet.addSelectedChangeListener(event -> {
             if (event.getSelectedTab().equals(tab1)) {
@@ -165,15 +169,22 @@ public class BesserTankenView extends VerticalLayout {
             }
         });
 
+        var besserTankenName = new H1("BesserTanken");
+        besserTankenName.getStyle().setMargin("0px");
+
         var version = new Span(BesserTanken.getEnv().getProperty("bessertanken.version"));
-        version.getStyle().set("padding-bottom", "3px");
+        version.getStyle().setFontSize("var(--lumo-font-size-s)");
         version.getStyle().setColor("var(--lumo-contrast-70pct)");
-        var header = new HorizontalLayout(new H1("BesserTanken"), version);
-        header.setAlignItems(Alignment.END);
+        version.getStyle().setMarginBottom("4px");
+
+        var header = new Div(besserTankenName, version);
+        header.getStyle().setAlignItems(Style.AlignItems.END);
+        header.getStyle().setMargin("15px 0px 30px 0px");
+        header.addClassNames("horizontal-layout", "header-layout");
 
         add(
                 header,
-                horizontalLayout,
+                filterDiv,
                 new Hr(),
                 tabSheet
         );
@@ -267,44 +278,38 @@ public class BesserTankenView extends VerticalLayout {
                 name.setWidth("max-content");
 
                 var address = new Paragraph(fuelStation.getAddress() + ", " + fuelStation.getCity());
-                address.setWidthFull();
                 address.getStyle().setFontSize("var(--lumo-font-size-m)");
 
                 var distance = new Paragraph(fuelStation.getDistance() + " km");
                 distance.setWidth("max-content");
                 distance.getStyle().setFontSize("var(--lumo-font-size-m)");
 
-                var layoutNameAddress = new VerticalLayout(name, address);
+                var layoutNameAddress = new Div(name, address);
                 layoutNameAddress.setHeightFull();
                 layoutNameAddress.addClassName(LumoUtility.Gap.SMALL);
                 layoutNameAddress.addClassName(LumoUtility.Padding.SMALL);
-                layoutNameAddress.setWidthFull();
-                layoutNameAddress.setJustifyContentMode(JustifyContentMode.CENTER);
-                layoutNameAddress.setAlignItems(Alignment.START);
+                layoutNameAddress.getStyle().setAlignItems(Style.AlignItems.START);
+                layoutNameAddress.getStyle().setMarginRight("auto");
 
-                var layoutPriceDistance = new VerticalLayout(price, distance);
+                var layoutPriceDistance = new Div(price, distance);
                 layoutPriceDistance.setHeightFull();
-                layoutPriceDistance.setSpacing(false);
                 layoutPriceDistance.addClassName(LumoUtility.Padding.XSMALL);
                 layoutPriceDistance.setWidth("min-content");
-                layoutPriceDistance.setJustifyContentMode(JustifyContentMode.CENTER);
-                layoutPriceDistance.setAlignItems(Alignment.CENTER);
-                layoutPriceDistance.setAlignSelf(Alignment.END, price);
-                layoutPriceDistance.setAlignSelf(Alignment.CENTER, distance);
+                layoutPriceDistance.getStyle().setJustifyContent(Style.JustifyContent.CENTER);
+                layoutPriceDistance.getStyle().setAlignItems(Style.AlignItems.CENTER);
+                price.getStyle().setAlignSelf(Style.AlignSelf.END);
+                distance.getStyle().setMarginLeft("auto");
 
-                var layoutRow = new HorizontalLayout(layoutNameAddress, layoutPriceDistance);
+                var layoutRow = new Div(layoutNameAddress, layoutPriceDistance);
+                layoutRow.addClassName("horizontal-layout");
+                layoutRow.getStyle().setPadding("10px 15px");
+                layoutRow.getStyle().setMargin("10px 0");
                 layoutRow.addClassName("temp");
-                layoutRow.setWidthFull();
                 layoutRow.setHeight("min-content");
-                layoutRow.setAlignItems(Alignment.CENTER);
-                layoutRow.setJustifyContentMode(JustifyContentMode.CENTER);
-                layoutRow.setFlexGrow(1.0, layoutNameAddress);
-                layoutRow.setFlexGrow(1.0, layoutPriceDistance);
+                layoutRow.getStyle().setAlignItems(Style.AlignItems.CENTER);
+                layoutRow.getStyle().setJustifyContent(Style.JustifyContent.CENTER);
                 layoutRow.getStyle().setBorder("3px solid var(--lumo-contrast-10pct)");
 
-                setWidthFull();
-                getStyle().set("flex-grow", "1");
-                setFlexGrow(1.0, layoutRow);
                 fuelStationsLayout.add(layoutRow);
             });
 
@@ -389,15 +394,15 @@ public class BesserTankenView extends VerticalLayout {
     private void loadBackground() {
         final var apiKey = BesserTanken.getSecrets().getOrDefault("mapKey", "");
 
-        XYZSource.Options sourceOptions = new XYZSource.Options();
+        var sourceOptions = new XYZSource.Options();
         sourceOptions.setUrl(
                 "https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=" + apiKey);
         sourceOptions.setAttributions(List.of(
                 "<a href=\"https://www.mapbox.com/about/maps/\">© Mapbox</a>",
                 "<a href=\"https://www.openstreetmap.org/about/\">© OpenStreetMap</a>"));
         sourceOptions.setAttributionsCollapsible(false);
-        XYZSource source = new XYZSource(sourceOptions);
-        TileLayer tileLayer = new TileLayer();
+        var source = new XYZSource(sourceOptions);
+        var tileLayer = new TileLayer();
         tileLayer.setSource(source);
         map.setBackgroundLayer(tileLayer);
     }
@@ -419,7 +424,7 @@ public class BesserTankenView extends VerticalLayout {
     }
 
     private Div getTooltip(MapFeatureClickEvent event, Optional<FuelStation> fuelStation) {
-        Div tooltip = new Div();
+        var tooltip = new Div();
         tooltip.addClassName("tooltip");
 
         fuelStation.ifPresent(fuelStationItem -> {
@@ -461,6 +466,7 @@ public class BesserTankenView extends VerticalLayout {
     }
 
     private void renderEfficiencyCalc() {
+        efficiencyLayout.addClassName("horizontal-layout");
         removeComponentsByClassName(efficiencyLayout, "efficiencyCalc");
 
         var consumption = new NumberField("Consumption", "6.5");
@@ -473,10 +479,12 @@ public class BesserTankenView extends VerticalLayout {
 
         var button = new Button("Calculate", FontAwesome.Solid.CALCULATOR.create());
         button.addClassName("efficiencyCalc");
+        button.getStyle().setPadding("10px");
 
         button.addClickListener(event -> {
-            var resultsLayout = new VerticalLayout(new H3("Result: "));
+            var resultsLayout = new Div(new H3("Result: "));
             resultsLayout.addClassName("efficiencyCalc_result");
+            resultsLayout.getStyle().setMarginLeft("auto");
             var fuelStations = new HashMap<>(calculateEfficiency(consumption.getValue(), amountGas.getValue()));
             removeComponentsByClassName(efficiencyLayout, "efficiencyCalc_result");
 
@@ -494,9 +502,13 @@ public class BesserTankenView extends VerticalLayout {
             efficiencyLayout.add(resultsLayout);
         });
 
-        var verticalLayout = new VerticalLayout(new HorizontalLayout(consumption, amountGas), button);
-        verticalLayout.addClassName("efficiencyCalc");
-        efficiencyLayout.addComponentAsFirst(verticalLayout);
+        var optionsInputDiv = new Div(consumption, amountGas);
+        optionsInputDiv.getStyle().setMarginBottom("10px");
+        optionsInputDiv.addClassName("horizontal-layout");
+
+        var optionsDiv = new Div(optionsInputDiv, button);
+        optionsDiv.addClassName("efficiencyCalc");
+        efficiencyLayout.addComponentAsFirst(optionsDiv);
     }
 
     private java.util.Map<FuelStation, Double> calculateEfficiency(double consumption, double amountGas) {
