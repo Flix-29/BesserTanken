@@ -49,8 +49,6 @@ import java.util.*;
 @PermitAll
 public class BesserTankenView extends Div {
 
-    //FIXME: fix flex wrap
-
     private final Logger LOGGER = LoggerFactory.getLogger(BesserTankenView.class);
     private final KraftstoffbilligerRequests kraftstoffbilligerRequests;
     private final OpenDataSoftRequests openDataSoftRequests;
@@ -125,12 +123,11 @@ public class BesserTankenView extends Div {
             displayFuelStations();
         });
         searchButton.addClickShortcut(Key.ENTER);
-        searchButton.setWidth("auto");
 
         var orderByLimitLayout = new Div(resultLimitSelect, orderBySelect);
         orderByLimitLayout.addClassName("horizontal-layout");
-        orderByLimitLayout.setWidthFull();
         orderByLimitLayout.getStyle().setJustifyContent(Style.JustifyContent.END);
+        orderByLimitLayout.getStyle().setMarginLeft("auto");
 
         var filterDiv = new Div(
                 useCurrentLocationSelect,
@@ -142,7 +139,6 @@ public class BesserTankenView extends Div {
         );
         filterDiv.addClassName("horizontal-layout");
         filterDiv.getStyle().setFlexBasis(Style.FlexBasis.AUTO);
-        filterDiv.setWidthFull();
         filterDiv.getStyle().setAlignItems(Style.AlignItems.CENTER);
         searchButton.getStyle().setAlignSelf(Style.AlignSelf.END);
 
@@ -160,7 +156,6 @@ public class BesserTankenView extends Div {
         tabSheet.add(tab1, fuelStationsLayout);
         tabSheet.add(tab2, new LazyComponent(() -> mapLayout));
         tabSheet.add(tab3, new LazyComponent(() -> efficiencyLayout));
-        tabSheet.setWidthFull();
         tabSheet.getStyle().setMarginTop("30px");
         tabSheet.addThemeVariants(TabSheetVariant.LUMO_BORDERED);
         tabSheet.addSelectedChangeListener(event -> {
@@ -184,7 +179,7 @@ public class BesserTankenView extends Div {
 
         var header = new Div(besserTankenName, version);
         header.getStyle().setAlignItems(Style.AlignItems.END);
-        header.getStyle().setMargin("15px 0px 30px 15px");
+        header.getStyle().setMargin("15px 0px 30px 0px");
         header.addClassNames("horizontal-layout", "header-layout");
 
         add(
@@ -283,7 +278,6 @@ public class BesserTankenView extends Div {
                 name.setWidth("max-content");
 
                 var address = new Paragraph(fuelStation.getAddress() + ", " + fuelStation.getCity());
-                address.setWidthFull();
                 address.getStyle().setFontSize("var(--lumo-font-size-m)");
 
                 var distance = new Paragraph(fuelStation.getDistance() + " km");
@@ -294,9 +288,8 @@ public class BesserTankenView extends Div {
                 layoutNameAddress.setHeightFull();
                 layoutNameAddress.addClassName(LumoUtility.Gap.SMALL);
                 layoutNameAddress.addClassName(LumoUtility.Padding.SMALL);
-                layoutNameAddress.setWidthFull();
-                layoutNameAddress.getStyle().setJustifyContent(Style.JustifyContent.CENTER);
                 layoutNameAddress.getStyle().setAlignItems(Style.AlignItems.START);
+                layoutNameAddress.getStyle().setMarginRight("auto");
 
                 var layoutPriceDistance = new Div(price, distance);
                 layoutPriceDistance.setHeightFull();
@@ -312,13 +305,11 @@ public class BesserTankenView extends Div {
                 layoutRow.getStyle().setPadding("10px 15px");
                 layoutRow.getStyle().setMargin("10px 0");
                 layoutRow.addClassName("temp");
-                layoutRow.setWidthFull();
                 layoutRow.setHeight("min-content");
                 layoutRow.getStyle().setAlignItems(Style.AlignItems.CENTER);
                 layoutRow.getStyle().setJustifyContent(Style.JustifyContent.CENTER);
                 layoutRow.getStyle().setBorder("3px solid var(--lumo-contrast-10pct)");
 
-                setWidthFull();
                 fuelStationsLayout.add(layoutRow);
             });
 
