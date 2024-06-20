@@ -305,7 +305,7 @@ public class BesserTankenView extends Div {
                 layoutPriceDistance.getStyle().setJustifyContent(Style.JustifyContent.CENTER);
                 layoutPriceDistance.getStyle().setAlignItems(Style.AlignItems.CENTER);
                 price.getStyle().setAlignSelf(Style.AlignSelf.END);
-                distance.getStyle().setMargin("0 0 0 auto");
+                distance.getStyle().setMarginLeft("auto");
 
                 var layoutRow = new Div(layoutNameAddress, layoutPriceDistance);
                 layoutRow.addClassName("horizontal-layout");
