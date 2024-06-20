@@ -310,7 +310,7 @@ public class BesserTankenView extends Div {
                 var layoutRow = new Div(layoutNameAddress, layoutPriceDistance);
                 layoutRow.addClassName("horizontal-layout");
                 layoutRow.getStyle().setPadding("10px 15px");
-                layoutRow.getStyle().setMargin("10px");
+                layoutRow.getStyle().setMargin("10px 0");
                 layoutRow.addClassName("temp");
                 layoutRow.setWidthFull();
                 layoutRow.setHeight("min-content");
