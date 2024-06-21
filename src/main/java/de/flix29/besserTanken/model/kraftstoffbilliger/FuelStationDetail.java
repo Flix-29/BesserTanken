@@ -19,7 +19,6 @@ public class FuelStationDetail {
     private String address;
     private String city;
     private LocalDateTime lastchange;
-    private String distance;
     private List<Price> prices;
     private List<OpeningTime> opening;
     private double lat;

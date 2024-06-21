@@ -17,7 +17,6 @@ public class FuelStation {
     private String address;
     private String city;
     private BigDecimal distance;
-    private String lat;
-    private String lon;
     private double price;
+    private FuelStationDetail details;
 }

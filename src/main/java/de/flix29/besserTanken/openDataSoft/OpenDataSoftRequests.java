@@ -14,6 +14,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Collections;
 import java.util.List;
 
 import static de.flix29.besserTanken.deserializer.CustomModelTypes.LOCATION_TYPE;
@@ -51,13 +52,20 @@ public class OpenDataSoftRequests {
             throw new RuntimeException(e);
         }
 
-        var jsonObject = gson.fromJson(response.body(), JsonObject.class);
-        var count = jsonObject.get("total_count").getAsInt();
-        var jsonArray = jsonObject.get("results").getAsJsonArray();
+        int count;
+        List<Location> result;
+        try {
+            var jsonObject = gson.fromJson(response.body(), JsonObject.class);
+            count = jsonObject.get("total_count").getAsInt();
+            var jsonArray = jsonObject.get("results").getAsJsonArray();
 
-        List<Location> result = gson.fromJson(jsonArray, LOCATION_TYPE);
+            result = gson.fromJson(jsonArray, LOCATION_TYPE);
+        } catch (Exception e) {
+            LOGGER.error("Error while parsing response: {}", response.body(), e);
+            return Collections.emptyList();
+        }
 
-        if(count > 100) {
+        if (count > 100) {
             result.addAll(getCoordsFromPlzAndPlzName(plz, plz_name, ++offset));
         }
 
@@ -68,15 +76,15 @@ public class OpenDataSoftRequests {
     private String buildUrl(int plz, String plz_name, int offset) {
         StringBuilder queryString = new StringBuilder(BASE_QUERY.replace("$offset$", String.valueOf(offset)));
 
-        if(plz != 0) {
+        if (plz != 0) {
             queryString.append(PLZ_QUERY.replace("$plz$", String.valueOf(plz)));
         }
 
-        if(plz_name != null) {
+        if (plz_name != null) {
             queryString.append(PLZ_NAME_QUERY.replace("$plz_name$", plz_name));
         }
 
-        if(plz == 0 && plz_name == null) {
+        if (plz == 0 && plz_name == null) {
             throw new IllegalArgumentException("Either plz or plz_name must be set");
         }
 

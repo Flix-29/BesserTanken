@@ -1,2 +1,61 @@
+@import "theme-editor.css";
 @import url('./main-layout.css');
 /*@import url('line-awesome/dist/line-awesome/css/line-awesome.min.css');*/
+
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+html, body, #outlet {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    padding: 20px;
+}
+
+.horizontal-layout, .fuelstation-result {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 0;
+    margin: 0;
+}
+
+.tab-item {
+    margin: 5px 10px;
+}
+
+.tab-item > span {
+    padding-bottom: 3px;
+}
+
+@media (max-width: 1400px) {
+    .horizontal-layout > * {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .header-layout {
+        gap: 0 !important;
+    }
+
+    .header-layout > * {
+        width: auto !important;
+        margin-right: 5px !important;
+    }
+}
+
+@media (max-width: 750px) {
+    .fuelstation-result {
+        flex-direction: column;
+    }
+
+    .text-wrap {
+        text-wrap: wrap;
+    }
+}

@@ -4,16 +4,20 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.commons.lang3.tuple.Pair;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Location {
+public class Location extends SimpleLocation{
 
     private int plz;
     private String name;
-    private Pair<Double, Double> coords;
+
+    public Location(int plz, String name, double latitude, double longitude) {
+        super(latitude, longitude);
+        this.plz = plz;
+        this.name = name;
+    }
 
 }
