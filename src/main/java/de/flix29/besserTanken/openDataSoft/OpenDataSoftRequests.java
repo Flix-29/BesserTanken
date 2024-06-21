@@ -2,7 +2,6 @@ package de.flix29.besserTanken.openDataSoft;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import de.flix29.besserTanken.deserializer.CustomLocationDeserializer;
 import de.flix29.besserTanken.model.openDataSoft.Location;
@@ -15,9 +14,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
 
 import static de.flix29.besserTanken.deserializer.CustomModelTypes.LOCATION_TYPE;
@@ -45,16 +41,8 @@ public class OpenDataSoftRequests {
     }
 
     public List<Location> getCoordsFromPlzAndPlzName(int plz, String plz_name, int offset) {
-        var locationFromJson = getLocationFromJson(plz, plz_name);
-        if (!locationFromJson.isEmpty()) {
-            LOGGER.info("Found {} results for plz: {} and plz_name: {}", locationFromJson.size(), plz, plz_name);
-            return locationFromJson;
-        }
-
         var url = buildUrl(plz, plz_name, offset);
-
-        var requestBuilder = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + url));
+        var requestBuilder = HttpRequest.newBuilder().uri(URI.create(BASE_URL + url));
 
         HttpResponse<String> response;
         try {
@@ -82,20 +70,6 @@ public class OpenDataSoftRequests {
 
         LOGGER.info("Found {} results for plz: {} and plz_name: {}", result.size(), plz, plz_name);
         return result;
-    }
-
-    private List<Location> getLocationFromJson(int plz, String plz_name) {
-        try {
-            var resourceAsStream = Files.readString(Path.of("src/main/resources/georef-germany-postleitzahl.json"));
-            var jsonArray = gson.fromJson(resourceAsStream, JsonArray.class);
-
-            return jsonArray.asList().stream()
-                    .map(jsonElement -> gson.fromJson(jsonElement, Location.class))
-                    .filter(location -> location.getPlz() == plz || location.getName().equals(plz_name))
-                    .toList();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private String buildUrl(int plz, String plz_name, int offset) {
