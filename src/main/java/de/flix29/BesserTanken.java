@@ -1,6 +1,8 @@
 package de.flix29;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.server.AppShellSettings;
+import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 import lombok.Getter;
@@ -12,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @SpringBootApplication
+@PWA(name = "BesserTanken", shortName = "BT", iconPath = "icons/icon-256x256.png")
 @Theme(value = "BesserTanken", variant = Lumo.DARK)
 public class BesserTanken implements AppShellConfigurator {
 
@@ -28,4 +31,8 @@ public class BesserTanken implements AppShellConfigurator {
 		secrets.put("bessertankenKey", System.getenv().getOrDefault("API_KEY", getEnv().getProperty("bessertanken.apikey")));
 	}
 
+	@Override
+	public void configurePage(AppShellSettings settings) {
+		settings.addFavIcon("icon", "icons/icon-256x256.png", "256x256");
+	}
 }
