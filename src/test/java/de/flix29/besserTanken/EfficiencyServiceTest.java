@@ -33,16 +33,16 @@ class EfficiencyServiceTest {
         return Stream.of(
                 Arguments.of(0, 0, null, Collections.emptyList()),
                 Arguments.of(0, 0, Collections.emptyList(), Collections.emptyList()),
-                Arguments.of(2.0, 10.0, fuelStations, List.of("2", "4", "3", "1", "5")),
-                Arguments.of(2.0, 50.0, fuelStations, List.of("2", "4", "3", "1", "5")),
-                Arguments.of(3.0, 10.0, fuelStations, List.of("2", "4", "3", "1", "5")),
-                Arguments.of(3.0, 50.0, fuelStations, List.of("2", "4", "3", "1", "5")),
-                Arguments.of(4.0, 10.0, fuelStations, List.of("2", "4", "3", "1", "5")),
-                Arguments.of(4.0, 50.0, fuelStations, List.of("2", "4", "3", "1", "5")),
-                Arguments.of(5.0, 10.0, fuelStations, List.of("2", "4", "3", "1", "5")),
-                Arguments.of(5.0, 50.0, fuelStations, List.of("2", "4", "3", "1", "5")),
-                Arguments.of(6.0, 10.0, fuelStations, List.of("2", "4", "3", "1", "5")),
-                Arguments.of(6.0, 50.0, fuelStations, List.of("2", "4", "3", "1", "5"))
+                Arguments.of(2.0, 10.0, fuelStations, List.of("1", "3", "4", "5", "2")),
+                Arguments.of(2.0, 50.0, fuelStations, List.of("1", "3", "4", "5", "2")),
+                Arguments.of(3.0, 10.0, fuelStations, List.of("1", "3", "4", "5", "2")),
+                Arguments.of(3.0, 50.0, fuelStations, List.of("1", "3", "4", "5", "2")),
+                Arguments.of(4.0, 10.0, fuelStations, List.of("1", "3", "4", "5", "2")),
+                Arguments.of(4.0, 50.0, fuelStations, List.of("1", "3", "4", "5", "2")),
+                Arguments.of(5.0, 10.0, fuelStations, List.of("1", "3", "4", "2", "5")),
+                Arguments.of(5.0, 50.0, fuelStations, List.of("1", "3", "4", "5", "2")),
+                Arguments.of(6.0, 10.0, fuelStations, List.of("1", "3", "4", "2", "5")),
+                Arguments.of(6.0, 50.0, fuelStations, List.of("1", "3", "4", "5", "2"))
         );
     }
 
