@@ -172,7 +172,7 @@ public class BesserTankenView extends Div {
         var besserTankenName = new H1("BesserTanken");
         besserTankenName.getStyle().setMargin("0px");
 
-        var version = new Span(BesserTanken.getEnv().getProperty("bessertanken.version"));
+        var version = new Span("v" + BesserTanken.getEnv().getProperty("bessertanken.version"));
         version.getStyle().setFontSize("var(--lumo-font-size-s)");
         version.getStyle().setColor("var(--lumo-contrast-70pct)");
         version.getStyle().setMarginBottom("4px");
@@ -482,10 +482,10 @@ public class BesserTankenView extends Div {
         button.getStyle().setPadding("10px");
 
         button.addClickListener(event -> {
-            var resultsLayout = new Div(new H3("Result: "));
+            var resultsLayout = new Div(new H3("Results: "));
             resultsLayout.addClassName("efficiencyCalc_result");
             resultsLayout.getStyle().setMarginLeft("auto");
-            var fuelStations = new HashMap<>(calculateEfficiency(consumption.getValue(), amountGas.getValue()));
+            var fuelStations = new LinkedHashMap<>(calculateEfficiency(consumption.getValue(), amountGas.getValue()));
             removeComponentsByClassName(efficiencyLayout, "efficiencyCalc_result");
 
             fuelStations.entrySet().stream().limit(3).forEach(entry -> {
@@ -511,7 +511,7 @@ public class BesserTankenView extends Div {
         efficiencyLayout.addComponentAsFirst(optionsDiv);
     }
 
-    private java.util.Map<FuelStation, Double> calculateEfficiency(double consumption, double amountGas) {
+    private java.util.LinkedHashMap<FuelStation, Double> calculateEfficiency(double consumption, double amountGas) {
         var fuelStations = kraftstoffbilligerRequests
                 .getFuelStationsByLocation(currentLocation, FuelType.fromName(fuelTypeSelect.getValue()), 5).stream()
                 .filter(fuelStation -> fuelStation.getPrice() != 0.0)
