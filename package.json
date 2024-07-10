@@ -4,7 +4,7 @@
   "type": "module",
   "dependencies": {
     "@flowingcode/font-awesome-iron-iconset": "5.1.1",
-    "@jridgewell/sourcemap-codec": "^1.4.15",
+    "@jridgewell/sourcemap-codec": "^1.5.0",
     "@polymer/polymer": "3.5.1",
     "@rollup/plugin-terser": "^0.4.4",
     "@vaadin/bundles": "24.4.1",
