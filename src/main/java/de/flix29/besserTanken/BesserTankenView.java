@@ -42,6 +42,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @PageTitle("BesserTanken")
@@ -270,19 +272,23 @@ public class BesserTankenView extends Div {
                     .limit(limit)
                     .toList();
 
+            displayedFuelStations = kraftstoffbilligerRequests.addDetailsToFuelStations(displayedFuelStations);
             displayedFuelStations.forEach(fuelStation -> {
-                var price = new H1(fuelStation.getPrice() + "€");
-                price.setWidth("max-content");
-
                 var name = new H3(fuelStation.getName());
                 name.addClassName("text-wrap");
 
                 var address = new Paragraph(fuelStation.getAddress() + ", " + fuelStation.getCity());
                 address.getStyle().setFontSize("var(--lumo-font-size-m)");
 
+                var price = new H1(fuelStation.getPrice() + "€");
+                price.setWidth("max-content");
+
                 var distance = new Paragraph(fuelStation.getDistance() + " km");
                 distance.setWidth("max-content");
                 distance.getStyle().setFontSize("var(--lumo-font-size-m)");
+
+                var changedAgo = formatChangedAgoValue(fuelStation.getDetails().getLastchange());
+                var changedTime = new Span("Last changed: " + changedAgo + " ago");
 
                 var layoutNameAddress = new Div(name, address);
                 layoutNameAddress.setHeightFull();
@@ -291,7 +297,7 @@ public class BesserTankenView extends Div {
                 layoutNameAddress.getStyle().setAlignItems(Style.AlignItems.START);
                 layoutNameAddress.getStyle().setMarginRight("auto");
 
-                var layoutPriceDistance = new Div(price, distance);
+                var layoutPriceDistance = new Div(price, distance, changedTime);
                 layoutPriceDistance.setHeightFull();
                 layoutPriceDistance.addClassName(LumoUtility.Padding.XSMALL);
                 layoutPriceDistance.setWidth("min-content");
@@ -322,6 +328,20 @@ public class BesserTankenView extends Div {
                     location.getLongitude() + " in a radius of " + radiusField.getValue() + " km.");
             h2.addClassName("temp");
             fuelStationsLayout.add(h2);
+        }
+    }
+
+    private String formatChangedAgoValue(LocalDateTime lastChange) {
+        var changedAgo = lastChange.until(LocalDateTime.now(), ChronoUnit.MINUTES);
+
+        if(changedAgo > 60) {
+            var lastChangedInHours = lastChange.until(LocalDateTime.now(), ChronoUnit.HOURS);
+            if (changedAgo % 60 > 30) {
+                return lastChangedInHours + .5 + " hours";
+            }
+            return lastChangedInHours + " hours";
+        } else {
+            return changedAgo + " minutes";
         }
     }
 
