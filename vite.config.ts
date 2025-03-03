@@ -2,8 +2,7 @@ import {UserConfigFn} from 'vite';
 import {overrideVaadinConfig} from './vite.generated';
 
 const customConfig: UserConfigFn = () => ({
-  // Here you can add custom Vite parameters
-  // https://vitejs.dev/config/
+    base: "/BesserTanken/",
 });
 
 export default overrideVaadinConfig(customConfig);
