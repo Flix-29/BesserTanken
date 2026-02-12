@@ -4,22 +4,18 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
-import de.flix29.besserTanken.model.openDataSoft.Location;
+import de.flix29.besserTanken.model.openDataSoft.SimpleLocation;
 
 import java.lang.reflect.Type;
 
-public class CustomLocationDeserializer implements JsonDeserializer<Location> {
-
+public class CustomLocationDeserializer implements JsonDeserializer<SimpleLocation> {
 
     @Override
-    public Location deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-        var location = new Location();
-        var jsonObject = jsonElement.getAsJsonObject();
-        location.setPlz(jsonObject.get("name").getAsInt());
-        location.setName(jsonObject.get("plz_name").getAsString());
-        var coords = jsonObject.get("geo_point_2d").getAsJsonObject();
-        location.setLatitude(coords.get("lat").getAsDouble());
-        location.setLongitude(coords.get("lon").getAsDouble());
-        return location;
+    public SimpleLocation deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+        var jsonObject = jsonElement.getAsJsonArray().get(0).getAsJsonObject();
+
+        return new SimpleLocation()
+                .setLatitude(jsonObject.get("lat").getAsDouble())
+                .setLongitude(jsonObject.get("lon").getAsDouble());
     }
 }

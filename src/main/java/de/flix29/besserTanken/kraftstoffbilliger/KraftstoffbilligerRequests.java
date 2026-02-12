@@ -2,7 +2,7 @@ package de.flix29.besserTanken.kraftstoffbilliger;
 
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelStation;
 import de.flix29.besserTanken.model.kraftstoffbilliger.FuelType;
-import de.flix29.besserTanken.model.openDataSoft.Location;
+import de.flix29.besserTanken.model.openDataSoft.SimpleLocation;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -35,12 +35,10 @@ public class KraftstoffbilligerRequests {
                 .toList();
     }
 
-    public List<FuelStation> getFuelStationsByLocation(List<Location> locations, FuelType fuelType, Integer radius) {
-        if (locations == null || locations.isEmpty()) {
+    public List<FuelStation> getFuelStationsByLocation(SimpleLocation location, FuelType fuelType, Integer radius) {
+        if (location == null) {
             return Collections.emptyList();
         }
-
-        var location = locations.get(0);
 
         try {
             return kraftstoffbilligerJob.getFuelStations(fuelType, location.getLatitude(), location.getLongitude(), radius);

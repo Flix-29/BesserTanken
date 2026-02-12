@@ -2,11 +2,9 @@ package de.flix29.besserTanken.openDataSoft;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import de.flix29.besserTanken.deserializer.CustomLocationDeserializer;
-import de.flix29.besserTanken.model.openDataSoft.Location;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import de.flix29.besserTanken.model.openDataSoft.SimpleLocation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -14,36 +12,31 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Collections;
-import java.util.List;
 
-import static de.flix29.besserTanken.deserializer.CustomModelTypes.LOCATION_TYPE;
-
+@Slf4j
 @Service
 public class OpenDataSoftRequests {
 
-    private final String BASE_URL = "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/georef-germany-postleitzahl/records?";
-    private final String BASE_QUERY = "select=name,plz_name,geo_point_2d&offset=$offset$";
-    private final String PLZ_QUERY = "&where=name=%22$plz$%22";
-    private final String PLZ_NAME_QUERY = "&where=plz_name=%22$plz_name$%22";
+    private static final String BASE_URL = "https://nominatim.openstreetmap.org/search?country=Germany&format=jsonv2&limit=1";
+    private static final String PLZ_QUERY = "&postal_code=$plz$";
+    private static final String PLZ_NAME_QUERY = "&city=$city$";
 
-    private final Logger LOGGER = LoggerFactory.getLogger(OpenDataSoftRequests.class);
     private final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(Location.class, new CustomLocationDeserializer())
+            .registerTypeAdapter(SimpleLocation.class, new CustomLocationDeserializer())
             .setPrettyPrinting()
             .create();
 
-    public List<Location> getCoordsFromPlz(int plz) {
-        return getCoordsFromPlzAndPlzName(plz, null, 0);
+    public SimpleLocation getCoordsFromPlz(int plz) {
+        return getCoordsFromPlzAndPlzName(plz, null);
     }
 
-    public List<Location> getCoordsFromPlzName(String plz_name) {
-        return getCoordsFromPlzAndPlzName(0, plz_name, 0);
+    public SimpleLocation getCoordsFromPlzName(String city) {
+        return getCoordsFromPlzAndPlzName(0, city);
     }
 
-    public List<Location> getCoordsFromPlzAndPlzName(int plz, String plz_name, int offset) {
-        var url = buildUrl(plz, plz_name, offset);
-        var requestBuilder = HttpRequest.newBuilder().uri(URI.create(BASE_URL + url));
+    public SimpleLocation getCoordsFromPlzAndPlzName(int plz, String city) {
+        var requestBuilder = HttpRequest.newBuilder()
+                .uri(URI.create(buildUrl(plz, city)));
 
         HttpResponse<String> response;
         try {
@@ -52,43 +45,31 @@ public class OpenDataSoftRequests {
             throw new RuntimeException(e);
         }
 
-        int count;
-        List<Location> result;
+        SimpleLocation result;
         try {
-            var jsonObject = gson.fromJson(response.body(), JsonObject.class);
-            count = jsonObject.get("total_count").getAsInt();
-            var jsonArray = jsonObject.get("results").getAsJsonArray();
-
-            result = gson.fromJson(jsonArray, LOCATION_TYPE);
+            result = gson.fromJson(response.body(), SimpleLocation.class);
+            log.info("Found results for plz: {} and city: {}", plz, city);
+            return result;
         } catch (Exception e) {
-            LOGGER.error("Error while parsing response: {}", response.body(), e);
-            return Collections.emptyList();
+            log.error("Error while parsing response: {}", response.body(), e);
+            return null;
         }
-
-        if (count > 100) {
-            result.addAll(getCoordsFromPlzAndPlzName(plz, plz_name, ++offset));
-        }
-
-        LOGGER.info("Found {} results for plz: {} and plz_name: {}", result.size(), plz, plz_name);
-        return result;
     }
 
-    private String buildUrl(int plz, String plz_name, int offset) {
-        StringBuilder queryString = new StringBuilder(BASE_QUERY.replace("$offset$", String.valueOf(offset)));
-
+    private String buildUrl(int plz, String city) {
+        StringBuilder queryString = new StringBuilder(BASE_URL);
         if (plz != 0) {
             queryString.append(PLZ_QUERY.replace("$plz$", String.valueOf(plz)));
         }
 
-        if (plz_name != null) {
-            queryString.append(PLZ_NAME_QUERY.replace("$plz_name$", plz_name));
+        if (city != null) {
+            queryString.append(PLZ_NAME_QUERY.replace("$city$", city));
         }
 
-        if (plz == 0 && plz_name == null) {
-            throw new IllegalArgumentException("Either plz or plz_name must be set");
+        if (plz == 0 && city == null) {
+            throw new IllegalArgumentException("Either plz or city must be set");
         }
 
         return queryString.toString();
     }
-
 }
