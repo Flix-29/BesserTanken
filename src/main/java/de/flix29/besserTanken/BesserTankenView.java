@@ -14,7 +14,6 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.map.Map;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
@@ -72,7 +71,6 @@ public class BesserTankenView extends Div {
     private boolean useCurrentLocation;
     private SimpleLocation currentLocation;
 
-    private Map map;
     private final NumberField radiusField;
     private final Select<String> useCurrentLocationSelect;
     private final Select<String> orderBySelect;
