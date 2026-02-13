@@ -18,7 +18,7 @@ import java.net.http.HttpResponse;
 public class OpenDataSoftRequests {
 
     private static final String BASE_URL = "https://nominatim.openstreetmap.org/search?country=Germany&format=jsonv2&limit=1";
-    private static final String PLZ_QUERY = "&postal_code=$plz$";
+    private static final String PLZ_QUERY = "&postalcode=$plz$";
     private static final String PLZ_NAME_QUERY = "&city=$city$";
 
     private final Gson gson = new GsonBuilder()
