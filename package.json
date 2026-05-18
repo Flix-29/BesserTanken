@@ -11,8 +11,8 @@
     "@jridgewell/sourcemap-codec": "^1.5.0",
     "@polymer/polymer": "3.5.2",
     "@remix-run/router": "^1.23.2",
-    "@rollup/plugin-terser": "^0.4.4",
     "@vaadin/bundles": "24.10.1",
+    "@rollup/plugin-terser": "^1.0.0",
     "@vaadin/common-frontend": "0.0.19",
     "@vaadin/polymer-legacy-adapter": "24.8.13",
     "@vaadin/react-components": "24.8.13",
@@ -50,7 +50,7 @@
     "typescript": "5.8.3",
     "vite": "^6.4.2",
     "vite-plugin-checker": "0.11.0",
-    "workbox-build": "7.3.0",
+    "workbox-build": "7.4.1",
     "workbox-core": "7.3.0",
     "workbox-precaching": "7.3.0"
   },
@@ -94,7 +94,7 @@
       "typescript": "5.8.3",
       "vite": "6.4.1",
       "vite-plugin-checker": "0.11.0",
-      "workbox-build": "7.3.0",
+      "workbox-build": "7.4.1",
       "workbox-core": "7.3.0",
       "workbox-precaching": "7.3.0"
     },
