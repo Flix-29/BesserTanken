@@ -12,7 +12,7 @@
     "@polymer/polymer": "3.5.2",
     "@remix-run/router": "^1.23.2",
     "@rollup/plugin-terser": "^0.4.4",
-    "@vaadin/bundles": "24.10.0",
+    "@vaadin/bundles": "24.10.1",
     "@vaadin/common-frontend": "0.0.19",
     "@vaadin/polymer-legacy-adapter": "24.8.13",
     "@vaadin/react-components": "24.8.13",
@@ -58,7 +58,7 @@
     "dependencies": {
       "@flowingcode/font-awesome-iron-iconset": "5.2.0",
       "@polymer/polymer": "3.5.2",
-      "@vaadin/bundles": "24.10.0",
+      "@vaadin/bundles": "24.10.1",
       "@vaadin/common-frontend": "0.0.19",
       "@vaadin/polymer-legacy-adapter": "24.8.13",
       "@vaadin/react-components": "24.8.13",
