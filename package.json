@@ -10,7 +10,7 @@
     "@flowingcode/font-awesome-iron-iconset": "5.2.0",
     "@jridgewell/sourcemap-codec": "^1.5.0",
     "@polymer/polymer": "3.5.2",
-    "@remix-run/router": "^1.23.2",
+    "@remix-run/router": "^1.23.3",
     "@vaadin/bundles": "24.10.1",
     "@rollup/plugin-terser": "^1.0.0",
     "@vaadin/common-frontend": "0.0.19",
