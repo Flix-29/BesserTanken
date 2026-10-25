@@ -11,8 +11,8 @@
     "@jridgewell/sourcemap-codec": "^1.5.0",
     "@polymer/polymer": "3.5.2",
     "@remix-run/router": "^1.23.3",
-    "@vaadin/bundles": "24.10.1",
     "@rollup/plugin-terser": "^1.0.0",
+    "@vaadin/bundles": "^24.4.21",
     "@vaadin/common-frontend": "0.0.19",
     "@vaadin/polymer-legacy-adapter": "24.8.13",
     "@vaadin/react-components": "24.8.13",
@@ -191,5 +191,9 @@
     "@vaadin/rich-text-editor": "24.8.13",
     "@remix-run/router": "$@remix-run/router",
     "react-router-dom": "$react-router-dom"
+  },
+  "allowScripts": {
+    "fsevents@2.3.3": true,
+    "@vaadin/vaadin-usage-statistics@2.1.3": true
   }
 }
